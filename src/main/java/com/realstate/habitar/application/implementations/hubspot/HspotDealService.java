@@ -66,6 +66,7 @@ public class HspotDealService {
 
     @Transactional
     public List<HubspotDealDtoApp> getDealsHubspot(LiquidationTimeRecord liquidationTimeRecord){
+
         return Arrays
                 .stream(PipelineType.values())
                 .map(p-> getDataFromHubSpot(p,liquidationTimeRecord))
@@ -84,8 +85,11 @@ public class HspotDealService {
     }
 
     private List<HubspotDealDtoApp> getDataFromHubSpot(PipelineType pipelineType, LiquidationTimeRecord liquidationTimeRecord){
+
+        System.out.println(liquidationTimeRecord);
         try {
             LiquidationTimeRecord timeRecord = CronoRules.getMileSecondsTime(liquidationTimeRecord);
+            System.out.println("DESPUES");
             List<Map<String,Object>> filters = buildStuctureConsultHubSpot(true,pipelineType,timeRecord,null);
             return hubspotClientRepository.findDeal(filters);
         }catch (Exception e){

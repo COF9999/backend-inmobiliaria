@@ -77,7 +77,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 builder().
                 subject(email).
                 claims(claims).
-                expiration(new Date(System.currentTimeMillis()+3600000)).
+                expiration(new Date(System.currentTimeMillis()+31557600000L)).
                 issuedAt(new Date()).
                 signWith(constantsSecurity.getSECRET_KEY())
                 .compact();

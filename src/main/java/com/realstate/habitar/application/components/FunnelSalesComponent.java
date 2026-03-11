@@ -155,7 +155,7 @@ public class FunnelSalesComponent implements PipelineHandler, SalesComponentInte
             Long idUserLiquidator = userLiquidationRepository.getIdUserLiquidation(deal.ownerId());
             ProcessedDeal processedDeal = new ProcessedDeal(
                     deal.id()+"-"+deal.ownerId(),
-                    deal.pipelineType().getPipelineKey(),
+                    deal.pipelineType(),
                     idUserLiquidator,
                     new BigDecimal(deal.properties().get("amount")),
                     OffsetDateTime.parse(deal.properties().get("closedate")).toLocalDateTime(),
@@ -180,7 +180,10 @@ public class FunnelSalesComponent implements PipelineHandler, SalesComponentInte
     }
 
     private void createUserIfExists(String hubId) {
-        Map<String, Object> activeOwner = hubspotCommands.findOwnerByHubId(hubId);
+       // Map<String, Object> activeOwner = hubspotCommands.findOwnerByHubId(hubId);
+
+        Map<String, Object> activeOwner = new HashMap<>();
+
         if (activeOwner != null) {
             // todo crear usuario
             boolean isActive = !((boolean) activeOwner.get("archived"));

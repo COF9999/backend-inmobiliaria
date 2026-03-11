@@ -36,6 +36,10 @@ public class HubspotDealClient implements HspotClientRepository {
 
     @Override
     public List<HubspotDealDtoApp> findDeal(List<Map<String,Object>> mapList) {
+
+
+
+
         Map<String, Object> requestBody = Map.of(
                 "filterGroups", List.of(
                         Map.of(

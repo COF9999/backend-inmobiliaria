@@ -18,6 +18,10 @@ public class HubSpotDealRest {
         this.hspotDealEventService = hspotDealEventService;
     }
 
+    @PostMapping("/deals-not-proccesed")
+    public ResponseEntity<List<HubspotDealDtoApp>> getDealsNotClosed(@RequestBody LiquidationTimeRecord liquidationTimeRecord){
+        return ResponseEntity.ok(hspotDealEventService.getDealsHubspot(liquidationTimeRecord));
+    }
 
     @PostMapping("/liquidate-select-deals")
     public ResponseEntity<Void> liquidateSelectDeals(@RequestBody List<HubspotDealDtoApp> listDeals)  {

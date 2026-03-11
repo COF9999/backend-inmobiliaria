@@ -25,6 +25,8 @@ public class CronoRules {
         Long mileSecondsEnd;
 
         if (liquidationTimeRecord.onlyDay()!=null){
+            System.out.println("ENTROROROORO");
+
             Integer onlyDay = liquidationTimeRecord.onlyDay();
             if (onlyDay<=0 || onlyDay>31){
                 throw new IllegalArgumentException("El parametro para los días no esta en un rango valido");

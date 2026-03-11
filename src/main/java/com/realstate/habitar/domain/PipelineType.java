@@ -1,22 +1,28 @@
 package com.realstate.habitar.domain;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public enum PipelineType {
-    FUNNEL_RENT("80031012",List.of("151455346")),
-    FUNNELSALES("default",List.of("closedwon")),
-    FUNNELRENTPLACEMENT("667146145",List.of("978989448"));
+    FUNNEL_RENT("80031012","Funnel Rent",List.of("151455346")),
+    FUNNELSALES("default","Funnel Sales",List.of("closedwon")),
+    FUNNELRENTPLACEMENT("667146145","Funnel Rent Placement",List.of("978989448"));
    // FUNNEL_TEST("800",List.of("1"));
 
     private final String pipelineKey;
+    private final String fieldName;
     private final List<String> dealStages;
 
-    PipelineType(String pipelineKey,List<String> dealStages){
+    PipelineType(String pipelineKey,String fieldName,List<String> dealStages){
         this.pipelineKey = pipelineKey;
+        this.fieldName = fieldName;
         this.dealStages = dealStages;
     }
+
+    private static final Map<String, PipelineType> mapPipelineType = new HashMap<>();
 
     public String getPipelineKey(){
         return this.pipelineKey;
