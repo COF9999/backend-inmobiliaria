@@ -3,73 +3,75 @@ package com.realstate.habitar.global.security;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.realstate.habitar.domain.dtos.token.TokenInfo;
 import com.realstate.habitar.global.security.constants.ConstantsSecurity;
-import com.realstate.habitar.global.security.specialObjects.SimpleGrantedAuthoritiesCreator;
+import com.realstate.habitar.global.security.jwtspace.Jwt;
+import com.realstate.habitar.infraestructure.classes.custom.CustomUserDetails;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import java.io.IOException;
 import java.util.*;
 
 public class JwtRequestFilter extends BasicAuthenticationFilter {
 
-    private final ConstantsSecurity constantsSecurity;
+    private final UserDetailsService userDetailsService;
 
-    public JwtRequestFilter(AuthenticationManager authenticationManager, ConstantsSecurity constantsSecurity) {
+    public JwtRequestFilter(AuthenticationManager authenticationManager, UserDetailsService userDetailsService) {
         super(authenticationManager);
-        this.constantsSecurity = constantsSecurity;
-
+        this.userDetailsService = userDetailsService;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String header = request.getHeader(ConstantsSecurity.HEADER_AUTHORIZATION);
 
-        if(header == null || !header.startsWith(ConstantsSecurity.PREFIX_TOKEN)){
+        String token = null;
+        if (request.getCookies() !=null){
+            for (Cookie cookie: request.getCookies()){
+                if ("p_token".equalsIgnoreCase(cookie.getName())){
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        if (token == null){
             chain.doFilter(request,response);
             return;
         }
 
-        String token = header.replace(ConstantsSecurity.PREFIX_TOKEN,"");
 
         try {
 
-            Claims claims = Jwts.parser()
-                    .verifyWith(constantsSecurity.getSECRET_KEY())
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
+            Claims claims = Jwt.validateToken(token);
+            System.out.println("CLAIMS   "+claims);
+            String email = claims.getSubject();
 
+            List<String> roles = claims.get("claims", List.class);
 
-            System.out.println("PASO FIRMA TOKEN");
+            List<SimpleGrantedAuthority> authorities =
+                    roles.stream()
+                            .map(SimpleGrantedAuthority::new)
+                            .toList();
 
-            String username = claims.getSubject();
-            Object authoritiesClaims = claims.get("authorities");
+            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
+            UsernamePasswordAuthenticationToken authenticationToken = new
+                    UsernamePasswordAuthenticationToken(userDetails,null,authorities);
 
-            Collection<? extends GrantedAuthority> authrorities = Arrays.asList(new ObjectMapper().
-                    addMixIn(SimpleGrantedAuthority.class, SimpleGrantedAuthoritiesCreator.class).
-                    readValue(authoritiesClaims.toString().getBytes(), SimpleGrantedAuthority[].class));
-
-            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username,
-                    null,authrorities);
-
-            SecurityContextHolder.getContext().setAuthentication(authToken);
-            System.out.println("BEFORE CHAIN DO FILTER");
-            TokenInfo tokenInfo = new TokenInfo(username,claims.getIssuedAt(),claims.getExpiration());
-            request.setAttribute("tokenInfo",tokenInfo);
+            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             chain.doFilter(request,response);
+
         }catch (JwtException e){
             Map<String,String> body = new HashMap<>();
             body.put("error",e.getMessage());

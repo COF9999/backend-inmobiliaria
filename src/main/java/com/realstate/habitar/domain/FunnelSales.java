@@ -1,7 +1,7 @@
 package com.realstate.habitar.domain;
 import com.realstate.habitar.domain.dtos.sales.SalesToAppRecord;
 import com.realstate.habitar.domain.dtos.sales.SalesToDomainRecord;
-import com.realstate.habitar.infraestructure.model.SalesCommissionScale;
+import com.realstate.habitar.infraestructure.classes.model.SalesCommissionScale;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

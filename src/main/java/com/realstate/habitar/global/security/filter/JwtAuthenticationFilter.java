@@ -1,7 +1,12 @@
 package com.realstate.habitar.global.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.realstate.habitar.domain.dtos.user.AuthUser;
+import com.realstate.habitar.domain.ports.user.UserDaoPort;
 import com.realstate.habitar.global.security.constants.ConstantsSecurity;
+import com.realstate.habitar.global.security.jwtspace.Jwt;
+import com.realstate.habitar.infraestructure.advicers.exceptions.ResourceNotFound;
+import com.realstate.habitar.infraestructure.classes.custom.CustomUserDetails;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
@@ -9,7 +14,10 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import com.realstate.habitar.global.infraestructure.models.User;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,22 +26,18 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
-    private final ConstantsSecurity constantsSecurity;
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager,ConstantsSecurity constantsSecurity) {
+
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
-        this.constantsSecurity = constantsSecurity;
         setFilterProcessesUrl("/login");
-    }
 
+    }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -45,9 +49,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             user = new ObjectMapper().readValue(request.getInputStream(),User.class);
             email = user.getEmail();
             password = user.getPassword();
-
-            System.out.println(email);
-
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -64,29 +65,47 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
 
-        org.springframework.security.core.userdetails.User user = (org.springframework.security.core.userdetails.User) authResult.getPrincipal();
+         CustomUserDetails customUserDetails = (CustomUserDetails) authResult.getPrincipal();
 
-        String email = user.getUsername(); // Here is the email
-        Collection<? extends GrantedAuthority> roles = authResult.getAuthorities();
+        String email = customUserDetails.getUsername();// Here is the email
+        String validUserName = customUserDetails.getAuthUser().username();
+
+       List<String> rolesList = authResult.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
 
         Claims claims = Jwts.claims()
-                .add("authorities",new ObjectMapper().writeValueAsString(roles))
+                .add("claims",rolesList)
+                .add("username",validUserName)
                 .build();
+
+        long expirationTime = 31557600000L;
 
         String token = Jwts.
                 builder().
                 subject(email).
                 claims(claims).
-                expiration(new Date(System.currentTimeMillis()+31557600000L)).
+                expiration(new Date(System.currentTimeMillis()+expirationTime)).
                 issuedAt(new Date()).
-                signWith(constantsSecurity.getSECRET_KEY())
+                signWith(Jwt.getSecretKey())
                 .compact();
 
-        response.addHeader(ConstantsSecurity.HEADER_AUTHORIZATION, ConstantsSecurity.PREFIX_TOKEN+token);
+        ResponseCookie jwtCookie = ResponseCookie.from("p_token",token)
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(expirationTime / 1000)
+                .sameSite("Strict")
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
+
 
         Map<String,String> body = new HashMap<>();
-        body.put("token",token);
-        body.put("message",String.format("Hola has iniciado sesión con exitoso usuario con el email %s",email));
+
+
+        body.put("username",validUserName);
 
         response.getWriter()
                 .write(new ObjectMapper().writeValueAsString(body));

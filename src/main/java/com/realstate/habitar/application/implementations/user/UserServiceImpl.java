@@ -12,7 +12,7 @@ import com.realstate.habitar.global.infraestructure.models.Role;
 import com.realstate.habitar.global.infraestructure.models.User;
 import com.realstate.habitar.infraestructure.adapters.interfaces.UserLiquidationRepository;
 import com.realstate.habitar.infraestructure.advicers.exceptions.ResourceAlreadyExists;
-import com.realstate.habitar.infraestructure.model.UserLiquidation;
+import com.realstate.habitar.infraestructure.classes.model.UserLiquidation;
 import com.realstate.habitar.utils.ThrowableActions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;

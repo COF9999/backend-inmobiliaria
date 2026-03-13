@@ -1,10 +1,8 @@
 package com.realstate.habitar.infraestructure.adapters.implementations;
 
-import com.realstate.habitar.global.infraestructure.models.User;
 import com.realstate.habitar.infraestructure.adapters.interfaces.SalesCommissionScaleRepository;
-import com.realstate.habitar.infraestructure.model.SalesCommissionScale;
+import com.realstate.habitar.infraestructure.classes.model.SalesCommissionScale;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import org.springframework.stereotype.Repository;

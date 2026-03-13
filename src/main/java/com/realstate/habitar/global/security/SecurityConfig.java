@@ -1,6 +1,7 @@
 package com.realstate.habitar.global.security;
 
 
+import com.realstate.habitar.domain.ports.user.UserDaoPort;
 import com.realstate.habitar.global.security.constants.ConstantsSecurity;
 import com.realstate.habitar.global.security.filter.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +12,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -25,14 +27,14 @@ public class SecurityConfig {
 
     private final AuthenticationManager authenticationManager;
 
-    private final ConstantsSecurity constantsSecurity;
+    private final UserDetailsService userDetailsService;
 
     @Value("${config.my.local.ip}")
     private String myLocalIp;
 
-    public SecurityConfig(AuthenticationManager authenticationManager, ConstantsSecurity constantsSecurity){
+    public SecurityConfig(AuthenticationManager authenticationManager,UserDetailsService userDetailsService){
         this.authenticationManager = authenticationManager;
-        this.constantsSecurity = constantsSecurity;
+        this.userDetailsService = userDetailsService;
     }
 
 
@@ -47,8 +49,8 @@ public class SecurityConfig {
                     .anyRequest().authenticated();
                 })
                 .sessionManagement(management-> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilter(new JwtAuthenticationFilter(authenticationManager,constantsSecurity))
-                .addFilter(new JwtRequestFilter(authenticationManager,constantsSecurity));
+                .addFilter(new JwtAuthenticationFilter(authenticationManager))
+                .addFilter(new JwtRequestFilter(authenticationManager,userDetailsService));
               /*  .addFilterBefore(
                         new JwtRequestFilter(authenticationManager, constantsSecurity),
                         UsernamePasswordAuthenticationFilter.class

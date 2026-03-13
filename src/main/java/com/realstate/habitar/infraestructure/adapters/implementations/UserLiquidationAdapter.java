@@ -2,7 +2,7 @@ package com.realstate.habitar.infraestructure.adapters.implementations;
 
 import com.realstate.habitar.global.domain.ports.DaoCrudPort;
 import com.realstate.habitar.infraestructure.adapters.interfaces.UserLiquidationRepository;
-import com.realstate.habitar.infraestructure.model.UserLiquidation;
+import com.realstate.habitar.infraestructure.classes.model.UserLiquidation;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;

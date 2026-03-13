@@ -1,4 +1,4 @@
-package com.realstate.habitar.infraestructure.model;
+package com.realstate.habitar.infraestructure.classes.model;
 
 import com.realstate.habitar.global.infraestructure.models.User;
 import jakarta.persistence.*;

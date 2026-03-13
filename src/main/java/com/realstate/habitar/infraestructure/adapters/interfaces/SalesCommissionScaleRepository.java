@@ -1,6 +1,6 @@
 package com.realstate.habitar.infraestructure.adapters.interfaces;
 
-import com.realstate.habitar.infraestructure.model.SalesCommissionScale;
+import com.realstate.habitar.infraestructure.classes.model.SalesCommissionScale;
 
 import java.util.List;
 import java.util.Optional;

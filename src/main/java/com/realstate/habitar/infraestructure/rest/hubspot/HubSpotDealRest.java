@@ -1,4 +1,4 @@
-package com.realstate.habitar.infraestructure.rest;
+package com.realstate.habitar.infraestructure.rest.hubspot;
 
 import com.realstate.habitar.application.implementations.hubspot.HspotDealService;
 import com.realstate.habitar.domain.dtos.hubspot.HubspotDealDtoApp;

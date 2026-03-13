@@ -2,7 +2,7 @@ package com.realstate.habitar.infraestructure.adapters.implementations;
 
 import com.realstate.habitar.global.domain.ports.DaoCrudPort;
 import com.realstate.habitar.infraestructure.adapters.interfaces.ProcessedDealRepository;
-import com.realstate.habitar.infraestructure.model.ProcessedDeal;
+import com.realstate.habitar.infraestructure.classes.model.ProcessedDeal;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;

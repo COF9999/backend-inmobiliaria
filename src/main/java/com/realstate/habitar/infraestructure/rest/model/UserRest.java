@@ -1,4 +1,4 @@
-package com.realstate.habitar.infraestructure.rest;
+package com.realstate.habitar.infraestructure.rest.model;
 
 import com.realstate.habitar.application.usecases.user.UserService;
 import com.realstate.habitar.domain.dtos.user.UserRequestDto;

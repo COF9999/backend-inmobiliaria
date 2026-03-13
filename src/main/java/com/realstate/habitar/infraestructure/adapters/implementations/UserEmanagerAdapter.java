@@ -22,12 +22,14 @@ public class UserEmanagerAdapter implements DaoCrudPort<User>, UserDaoPort {
     private EntityManager entityManager;
 
     @Override
-    public Optional<Object> findByEmail(String email) {
+    public Optional<User> findByEmail(String email) {
         try {
-            Query query =  entityManager.createQuery("select u from User u where u.email=?1", User.class);
-            query.setParameter(1, email);
-            return Optional.ofNullable(query.getSingleResult());
-        }catch (NoResultException e){
+            User user = entityManager.createQuery(
+                            "SELECT u FROM User u WHERE u.email = :email", User.class)
+                    .setParameter("email", email)
+                    .getSingleResult();
+            return Optional.of(user);
+        } catch (NoResultException e) {
             return Optional.empty();
         }
     }
@@ -51,6 +53,20 @@ public class UserEmanagerAdapter implements DaoCrudPort<User>, UserDaoPort {
         return results.stream().findFirst();
     }
 
+
+    public boolean isUserActive(String email) {
+        List<Boolean> results = entityManager.createQuery(
+                        "SELECT u.isActive FROM User u WHERE u.email = :email", Boolean.class)
+                .setParameter("email", email)
+                .setMaxResults(1)
+                .getResultList();
+
+        if (results.isEmpty()){
+            throw new IllegalArgumentException("User not found with that email");
+        }
+
+        return results.get(0);
+    }
 
 
     @Override
