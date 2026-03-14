@@ -1,9 +1,10 @@
-package com.realstate.habitar.domain;
+package com.realstate.habitar.domain.dispactchers;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 public enum PipelineType {
@@ -22,10 +23,20 @@ public enum PipelineType {
         this.dealStages = dealStages;
     }
 
-    private static final Map<String, PipelineType> mapPipelineType = new HashMap<>();
+
+    private static final Map<String, String> LOOKUP_MAP = Arrays.stream(values())
+            .collect(Collectors.toMap(PipelineType::getPipelineKey, PipelineType::getFieldName));
+
+    public static String getFieldNameByMap(String pipelineKey){
+        return LOOKUP_MAP.get(pipelineKey);
+    }
 
     public String getPipelineKey(){
         return this.pipelineKey;
+    }
+
+    public String getFieldName(){
+        return this.fieldName;
     }
 
     public List<String> getDealStages(){

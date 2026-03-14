@@ -19,6 +19,6 @@ public class HubspotCommandService implements HubspotCommand {
     @Override
     public Map<String, Object> findOwnerByHubId(String hubId) {
        // return hubspotClientRepository.findDeal(hubId);
-        return null;
+        return hubspotClientRepository.getOwnerByHubIDstatus(hubId);
     }
 }

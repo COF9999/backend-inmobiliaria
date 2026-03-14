@@ -1,10 +1,9 @@
 package com.realstate.habitar.application.implementations.hubspot;
-import com.realstate.habitar.domain.PipelineHandler;
-import com.realstate.habitar.domain.PipelineType;
+import com.realstate.habitar.domain.dispactchers.PipelineHandler;
+import com.realstate.habitar.domain.dispactchers.PipelineType;
 import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component

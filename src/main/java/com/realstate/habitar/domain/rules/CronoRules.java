@@ -17,10 +17,8 @@ public class CronoRules {
     }
 
     public static LiquidationTimeRecord getMileSecondsTime(LiquidationTimeRecord liquidationTimeRecord){
-        Integer year;
-        Integer month;
-        Integer startDay;
-        Integer endDay;
+        LocalDateTime dateOne;
+        LocalDateTime dateSecond;
         Long mileSecondsStart;
         Long mileSecondsEnd;
 
@@ -41,14 +39,12 @@ public class CronoRules {
 
 
         }else {
-            year = liquidationTimeRecord.year();
-            month = liquidationTimeRecord.month();
-            startDay = liquidationTimeRecord.startDay();
-            endDay = liquidationTimeRecord.endDay();
-            LocalDateTime ldtStarDay = generateLocalDateTime(year,month,startDay,0,0);
-            LocalDateTime ldtEndDay = generateLocalDateTime(year,month,endDay,0,0);
-            mileSecondsStart = mileSecondsOfDate(ldtStarDay);
-            mileSecondsEnd = mileSecondsOfDate(ldtEndDay);
+            dateOne = liquidationTimeRecord.dateOne();
+            dateSecond = liquidationTimeRecord.dateSecond();
+            //LocalDateTime ldtStarDay = generateLocalDateTime(year,month,startDay,0,0);
+            //LocalDateTime ldtEndDay = generateLocalDateTime(year,month,endDay,0,0);
+            mileSecondsStart = mileSecondsOfDate(dateOne);
+            mileSecondsEnd = mileSecondsOfDate(dateSecond);
             return new LiquidationTimeRecord.BuilderLiquidationTime()
                     .setMilesecondsStartDay(mileSecondsStart)
                     .setMilesecondsEndDay(mileSecondsEnd)

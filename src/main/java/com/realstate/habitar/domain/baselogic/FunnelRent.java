@@ -1,4 +1,4 @@
-package com.realstate.habitar.domain;
+package com.realstate.habitar.domain.baselogic;
 
 
 public class FunnelRent{

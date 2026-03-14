@@ -1,47 +1,35 @@
 package com.realstate.habitar.domain.dtos.sales;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public record LiquidationTimeRecord(
                                      Integer onlyDay,
-                                     Integer year,
-                                     Integer month,
-                                     Integer startDay,
-                                     Integer endDay,
+                                     LocalDateTime dateOne,
+                                     LocalDateTime dateSecond,
                                      Long milesecondsStartDay,
                                      Long milesecondsEndDay) {
 
     public static class BuilderLiquidationTime {
         private Integer onlyDay;
-        private Integer year;
-        private Integer month;
-        private Integer startDay;
-        private Integer endDay;
+        private LocalDateTime dateOne;
+        private LocalDateTime dateSecond;
         private Long milesecondsStartDay;
         private Long milesecondsEndDay;
 
-        public BuilderLiquidationTime setYear(int year){
-            this.year = year;
-            return this;
-        }
-
-        public BuilderLiquidationTime setMonth(Integer month) {
-            this.month = month;
-            return this;
-        }
 
         public BuilderLiquidationTime setOnlyDay(Integer onlyDay) {
             this.onlyDay = onlyDay;
             return this;
         }
 
-        public BuilderLiquidationTime setStartDay(Integer startDay) {
-            this.startDay = startDay;
+        public BuilderLiquidationTime setStartDay(LocalDateTime startDay) {
+            this.dateOne = startDay;
             return this;
         }
 
-        public BuilderLiquidationTime setEndDay(Integer endDay) {
-            this.endDay = endDay;
+        public BuilderLiquidationTime setEndDay(LocalDateTime endDay) {
+            this.dateSecond = endDay;
             return this;
         }
 
@@ -63,24 +51,20 @@ public record LiquidationTimeRecord(
 
             if (this.onlyDay !=null){
 
-                if (this.year !=null || this.month!=null || this.startDay != null){
+                if (this.dateOne !=null || this.dateSecond!=null){
                     throw new IllegalArgumentException("El parametro para días no es el unico campo");
                 }
 
 
             }else {
-                Objects.requireNonNull(this.year,concateErrorMessage(String.valueOf(this.year)));
-                Objects.requireNonNull(this.month,concateErrorMessage(String.valueOf(this.month)));
-                Objects.requireNonNull(this.startDay,concateErrorMessage(String.valueOf(this.startDay)));
-                Objects.requireNonNull(this.endDay,concateErrorMessage(String.valueOf(this.endDay)));
+                Objects.requireNonNull(this.milesecondsStartDay,concateErrorMessage(String.valueOf(this.milesecondsStartDay)));
+                Objects.requireNonNull(this.milesecondsEndDay,concateErrorMessage(String.valueOf(this.milesecondsEndDay)));
             }
 
             return new LiquidationTimeRecord(
                     this.onlyDay,
-                    this.year,
-                    this.month,
-                    this.startDay,
-                    this.endDay,
+                    this.dateOne,
+                    this.dateSecond,
                     this.milesecondsStartDay,
                     this.milesecondsEndDay);
         }

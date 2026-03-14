@@ -1,7 +1,6 @@
 package com.realstate.habitar.domain.beans;
 
-import com.realstate.habitar.application.usecases.components.SalesComponentInterface;
-import com.realstate.habitar.domain.FunnelSales;
+import com.realstate.habitar.domain.baselogic.FunnelSales;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

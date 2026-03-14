@@ -1,20 +1,22 @@
 package com.realstate.habitar.infraestructure.adapters.implementations;
 
-import com.realstate.habitar.domain.PipelineType;
-
+import com.realstate.habitar.domain.dispactchers.PipelineType;
+import com.realstate.habitar.domain.dtos.hubspot.HubSpotDealKeyRecord;
 import com.realstate.habitar.domain.dtos.hubspot.HubSpotSearchResponse;
 import com.realstate.habitar.domain.dtos.hubspot.HubspotDealDtoApp;
-import com.realstate.habitar.domain.dtos.sales.LiquidationTimeRecord;
 import com.realstate.habitar.infraestructure.adapters.interfaces.HspotClientRepository;
 import com.realstate.habitar.infraestructure.advicers.exceptions.ExternalServiceException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.reactive.resource.NoResourceFoundException;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
+
 
 @Repository
 public class HubspotDealClient implements HspotClientRepository {
@@ -35,10 +37,7 @@ public class HubspotDealClient implements HspotClientRepository {
 
 
     @Override
-    public List<HubspotDealDtoApp> findDeal(List<Map<String,Object>> mapList) {
-
-
-
+    public List<HubspotDealDtoApp> findDeals(List<Map<String,Object>> mapList) {
 
         Map<String, Object> requestBody = Map.of(
                 "filterGroups", List.of(
@@ -58,13 +57,47 @@ public class HubspotDealClient implements HspotClientRepository {
                     .block()
                     .getResults()
                     .stream()
-                    .map(h-> new HubspotDealDtoApp(h.id(),h.properties().get("hubspot_owner_id"),h.properties().get("pipeline"),h.properties()))
+                    .map(h-> new HubspotDealDtoApp(h.id(),h.properties().get("hubspot_owner_id"), PipelineType.getFieldNameByMap(h.properties().get("pipeline")),h.properties()))
                     .toList();
         }catch (WebClientResponseException e) {
             String errorBody = e.getResponseBodyAsString();
             System.err.println("Cuerpo del error HubSpot: " + errorBody);
             throw new ExternalServiceException("Error HTTP desde HubSpot: " + errorBody);
         } catch (Exception e) {
+            throw new ExternalServiceException(
+                    "Error inesperado comunicándose con HubSpot "+e.getMessage());
+        }
+    }
+
+    @Override
+    public HubspotDealDtoApp findDealByPrincipalInfo(HubSpotDealKeyRecord hubSpotDealKeyRecord) {
+        try {
+            // Se usa el endpoint: /crm/v3/objects/deals/{dealId}
+            HubspotDealDtoApp response = hubspotWebClient.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/crm/v3/objects/deals/{dealId}") // Ruta limpia sin "search"
+                            .queryParam("properties", "hubspot_owner_id,dealname,amount,dealstage,pipeline,closedate")
+                            .build(hubSpotDealKeyRecord.dealId())) // WebClient acepta String aquí, no hace falta parsear
+                    .retrieve()
+                    .bodyToMono(HubspotDealDtoApp.class) // Clase que represente un solo Deal
+                    .block();
+
+            if (response == null) {
+                throw new NoResourceFoundException("Elemento negocio no encontrado");
+            }
+
+            // 2. Mapeas directamente el objeto recibido
+            return new HubspotDealDtoApp(
+                    response.id(),
+                    response.properties().get("hubspot_owner_id"),
+                    response.properties().get("pipeline"),
+                    response.properties()
+            );
+
+        } catch (WebClientResponseException e) {
+            String errorBody = e.getResponseBodyAsString();
+            throw new ExternalServiceException("Error HTTP desde HubSpot: " + errorBody);
+        }catch (Exception e){
             throw new ExternalServiceException(
                     "Error inesperado comunicándose con HubSpot "+e.getMessage());
         }

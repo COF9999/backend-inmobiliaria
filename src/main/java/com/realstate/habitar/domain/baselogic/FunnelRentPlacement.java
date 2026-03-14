@@ -1,9 +1,4 @@
-package com.realstate.habitar.domain;
-
-import com.realstate.habitar.domain.dtos.hubspot.HubspotDealDtoApp;
-
-import java.util.List;
-import java.util.Map;
+package com.realstate.habitar.domain.baselogic;
 
 public class FunnelRentPlacement{
     /*

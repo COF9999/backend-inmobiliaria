@@ -1,10 +1,13 @@
 package com.realstate.habitar.application.implementations.hubspot;
-import com.realstate.habitar.domain.PipelineHandler;
-import com.realstate.habitar.domain.PipelineType;
+import com.realstate.habitar.domain.dispactchers.FunnelSalesType;
+import com.realstate.habitar.domain.dispactchers.PipelineHandler;
+import com.realstate.habitar.domain.dispactchers.PipelineType;
+import com.realstate.habitar.domain.dtos.hubspot.HubSpotDealKeyRecord;
 import com.realstate.habitar.domain.dtos.hubspot.HubspotDealDtoApp;
 import com.realstate.habitar.domain.dtos.sales.LiquidationTimeRecord;
 import com.realstate.habitar.domain.hubspot.ObjectHubSpot;
 import com.realstate.habitar.domain.hubspot.Operators;
+import com.realstate.habitar.domain.interfaces.Execute;
 import com.realstate.habitar.domain.rules.CronoRules;
 import com.realstate.habitar.infraestructure.adapters.interfaces.HspotClientRepository;
 import com.realstate.habitar.infraestructure.adapters.interfaces.ProcessedDealRepository;
@@ -32,21 +35,30 @@ public class HspotDealService {
 
 
     @Transactional
-    public void liquidateSelectDeals(List<HubspotDealDtoApp> listDeals){
+    public void liquidateOnlyDeal(HubSpotDealKeyRecord hubSpotDealKeyRecord){
+        HubspotDealDtoApp hubspotDealDtoApp = hubspotClientRepository.findDealByPrincipalInfo(hubSpotDealKeyRecord);
+
+        boolean isUnique = findNotIsProcessed(hubspotDealDtoApp.id()+"-"+hubspotDealDtoApp.ownerId());
+
+        if (isUnique == false ){
+            throw new IllegalArgumentException("Deal ya esta procesado");
+        }
+
+        System.out.println("ONLYDEAL");
+
+        List<HubspotDealDtoApp> listDeals = new ArrayList<>();
+        listDeals.add(hubspotDealDtoApp);
         Map<String,Map<String,List<HubspotDealDtoApp>>> grouped = grouped(listDeals);
 
-        grouped.forEach((pipeline, listDealsByOwner) -> {
-            processCloseDeal(pipeline,listDealsByOwner);
-        });
-    }
-
-
-    @Transactional
-    public void processDealTest(List<HubspotDealDtoApp> listDeals){
-        Map<String,Map<String,List<HubspotDealDtoApp>>> grouped = grouped(listDeals);
+        System.out.println(grouped.toString());
 
         grouped.forEach((pipeline, listDealsByOwner) -> {
-            processCloseDeal(pipeline,listDealsByOwner);
+            FunnelSalesType funnelSalesType = new FunnelSalesType("DEAL");
+            processCloseDeal(pipeline, listDealsByOwner, funnelSalesType, (p, list, extra) -> {
+                PipelineHandler handler = getPipelineHandler(p);
+                System.out.println(handler.pipelineKey());
+                handler.handle(listDealsByOwner,extra);
+            });
         });
     }
 
@@ -59,39 +71,36 @@ public class HspotDealService {
 
         Map<String,Map<String,List<HubspotDealDtoApp>>> grouped = grouped(listDeals);
 
+        /*
         grouped.forEach((pipeline, listDealsByOwner) -> {
             callGenerateReport(pipeline,listDealsByOwner);
         });
+
+         */
     }
 
     @Transactional
     public List<HubspotDealDtoApp> getDealsHubspot(LiquidationTimeRecord liquidationTimeRecord){
 
-        return Arrays
+        List<HubspotDealDtoApp> list =  Arrays
                 .stream(PipelineType.values())
                 .map(p-> getDataFromHubSpot(p,liquidationTimeRecord))
                 .flatMap(List::stream)
-                .filter(dealByPipeline-> findUniqueKey(dealByPipeline.id()+"-"+dealByPipeline.ownerId()))
+                .filter(deal-> findNotIsProcessed(deal.id()+"-"+deal.ownerId()))
                 .toList();
+
+        list.forEach(System.out::println);
+
+        return list;
     }
 
-    public List<HubspotDealDtoApp> filterHubSpotFromUser(List<ObjectHubSpot> objectHubSpot){
-        try {
-            List<Map<String,Object>> filters =  buildStuctureConsultHubSpot(false,null,null,objectHubSpot);
-            return hubspotClientRepository.findDeal(filters);
-        }catch (Exception e){
-            throw new UnsupportedOperationException(e.getMessage());
-        }
-    }
+
 
     private List<HubspotDealDtoApp> getDataFromHubSpot(PipelineType pipelineType, LiquidationTimeRecord liquidationTimeRecord){
-
-        System.out.println(liquidationTimeRecord);
         try {
             LiquidationTimeRecord timeRecord = CronoRules.getMileSecondsTime(liquidationTimeRecord);
-            System.out.println("DESPUES");
             List<Map<String,Object>> filters = buildStuctureConsultHubSpot(true,pipelineType,timeRecord,null);
-            return hubspotClientRepository.findDeal(filters);
+            return hubspotClientRepository.findDeals(filters);
         }catch (Exception e){
             throw new UnsupportedOperationException(e.getMessage());
         }
@@ -143,22 +152,27 @@ public class HspotDealService {
                 ));
     }
 
+    /*
     private void callGenerateReport(String pipelineType,Map<String,List<HubspotDealDtoApp>> dealsByOwner){
         PipelineHandler handler = getPipelineHandler(pipelineType);
-        handler.generateReport(dealsByOwner);
+        handler
+                .generateReport(dealsByOwner);
     }
 
-    private void processCloseDeal(String pipelineType,Map<String,List<HubspotDealDtoApp>> dealsByOwner ){
-        PipelineHandler handler = getPipelineHandler(pipelineType);
-        handler.handle(dealsByOwner);
+
+     */
+    private <T1,T2,T3 >void processCloseDeal(T1 t1,T2 t2,T3 t3,Execute<T1,T2,T3> action){
+            action.execute(t1,t2,t3);
     }
+
+
 
     private PipelineHandler getPipelineHandler(String pipelineKey){
         return handlerFactory.getHandler(pipelineKey);
     }
 
-    private boolean findUniqueKey(String key){
-        return processedDealRepository.uniqueKey(key);
+    private boolean findNotIsProcessed(String key){
+        return processedDealRepository.notIsProcessed(key);
     }
 
 

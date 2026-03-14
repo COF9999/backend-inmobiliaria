@@ -29,7 +29,7 @@ public class ProcessedDealsApadter implements DaoCrudPort<ProcessedDeal>,Process
     }
 
     @Transactional(readOnly = true)
-    public boolean uniqueKey(String key){
+    public boolean notIsProcessed(String key){
         Long count = entityManager.createQuery("SELECT COUNT(p) FROM ProcessedDeal p WHERE p.dealId = :key", Long.class)
                 .setParameter("key", key)
                 .getSingleResult();

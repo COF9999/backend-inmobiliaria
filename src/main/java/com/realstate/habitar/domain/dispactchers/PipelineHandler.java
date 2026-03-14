@@ -1,4 +1,4 @@
-package com.realstate.habitar.domain;
+package com.realstate.habitar.domain.dispactchers;
 
 import com.realstate.habitar.domain.dtos.hubspot.HubspotDealDtoApp;
 
@@ -9,7 +9,6 @@ public interface PipelineHandler {
 
     PipelineType pipelineKey();
 
-    void handle(Map<String, List<HubspotDealDtoApp>> dealsByOwner);
-
-    void generateReport(Map<String,List<HubspotDealDtoApp>> dealsByOwner);
+    void handle(Map<String, List<HubspotDealDtoApp>> listDeals,
+                TypeMethodFunnel typeMethodFunnel);
 }

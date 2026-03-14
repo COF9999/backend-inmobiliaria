@@ -1,6 +1,7 @@
 package com.realstate.habitar.infraestructure.rest.hubspot;
 
 import com.realstate.habitar.application.implementations.hubspot.HspotDealService;
+import com.realstate.habitar.domain.dtos.hubspot.HubSpotDealKeyRecord;
 import com.realstate.habitar.domain.dtos.hubspot.HubspotDealDtoApp;
 import com.realstate.habitar.domain.dtos.sales.LiquidationTimeRecord;
 import org.springframework.http.ResponseEntity;
@@ -20,12 +21,14 @@ public class HubSpotDealRest {
 
     @PostMapping("/deals-not-proccesed")
     public ResponseEntity<List<HubspotDealDtoApp>> getDealsNotClosed(@RequestBody LiquidationTimeRecord liquidationTimeRecord){
+        System.out.println("FUNCIONA");
         return ResponseEntity.ok(hspotDealEventService.getDealsHubspot(liquidationTimeRecord));
     }
 
-    @PostMapping("/liquidate-select-deals")
-    public ResponseEntity<Void> liquidateSelectDeals(@RequestBody List<HubspotDealDtoApp> listDeals)  {
-        hspotDealEventService.liquidateSelectDeals(listDeals);
+    @PostMapping("/liquidate-select-deal")
+    public ResponseEntity<Void> liquidateSelectDeal(@RequestBody HubSpotDealKeyRecord hubSpotDealKeyRecord)  {
+        hspotDealEventService.liquidateOnlyDeal(hubSpotDealKeyRecord);
+        System.out.println("---------------------------------BIEN");
         return ResponseEntity.ok().build();
     }
 
@@ -41,16 +44,7 @@ public class HubSpotDealRest {
     }
 
 
-    @PostMapping("/test")
-    public ResponseEntity<Void> dealReciever(@RequestBody List<HubspotDealDtoApp> listDeals)  {
-        try {
-            hspotDealEventService.processDealTest(listDeals);
-        }catch (Exception ex){
-            log.error("Error procesando evento HubSpot: {}", ex);
-        }
 
-        return ResponseEntity.ok().build();
-    }
 
 
 
