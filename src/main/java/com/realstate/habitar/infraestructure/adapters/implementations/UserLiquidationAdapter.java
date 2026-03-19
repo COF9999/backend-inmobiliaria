@@ -1,7 +1,7 @@
 package com.realstate.habitar.infraestructure.adapters.implementations;
 
 import com.realstate.habitar.global.domain.ports.DaoCrudPort;
-import com.realstate.habitar.infraestructure.adapters.interfaces.UserLiquidationRepository;
+import com.realstate.habitar.infraestructure.adapters.interfaces.userLiquidation.UserLiquidationRepository;
 import com.realstate.habitar.infraestructure.classes.model.UserLiquidation;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -34,7 +34,6 @@ public class UserLiquidationAdapter implements DaoCrudPort<UserLiquidation> , Us
             query.setParameter("amountUser",amountUser);
             query.setParameter("hubId", hubId);
             query.executeUpdate();
-
     }
 
     @Override
@@ -63,17 +62,6 @@ public class UserLiquidationAdapter implements DaoCrudPort<UserLiquidation> , Us
     }
 
 
-
-    @Override
-    public List<UserLiquidation> selectAll() {
-        return List.of();
-    }
-
-    @Override
-    public Optional<UserLiquidation> get(Long id) {
-        return Optional.empty();
-    }
-
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public Optional<UserLiquidation> create(UserLiquidation object) {
@@ -88,6 +76,17 @@ public class UserLiquidationAdapter implements DaoCrudPort<UserLiquidation> , Us
 
     @Override
     public Optional<UserLiquidation> delete(Long id) {
+        return Optional.empty();
+    }
+
+
+    @Override
+    public List<UserLiquidation> selectAll() {
+        return List.of();
+    }
+
+    @Override
+    public Optional<UserLiquidation> get(Long id) {
         return Optional.empty();
     }
 }

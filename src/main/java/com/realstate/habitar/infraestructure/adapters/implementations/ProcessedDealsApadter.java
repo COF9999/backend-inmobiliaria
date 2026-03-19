@@ -1,7 +1,7 @@
 package com.realstate.habitar.infraestructure.adapters.implementations;
 
 import com.realstate.habitar.global.domain.ports.DaoCrudPort;
-import com.realstate.habitar.infraestructure.adapters.interfaces.ProcessedDealRepository;
+import com.realstate.habitar.infraestructure.adapters.interfaces.processDeal.ProcessedDealRepository;
 import com.realstate.habitar.infraestructure.classes.model.ProcessedDeal;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -34,6 +34,12 @@ public class ProcessedDealsApadter implements DaoCrudPort<ProcessedDeal>,Process
                 .setParameter("key", key)
                 .getSingleResult();
         return count == 0;
+    }
+
+    @Override
+    public List<ProcessedDeal> getProcessDeals() {
+        return entityManager.createQuery("select p from  ProcessedDeal p",ProcessedDeal.class)
+                .getResultList();
     }
 
     @Override

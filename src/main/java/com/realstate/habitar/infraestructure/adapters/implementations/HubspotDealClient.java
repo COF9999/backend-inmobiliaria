@@ -4,7 +4,7 @@ import com.realstate.habitar.domain.dispactchers.PipelineType;
 import com.realstate.habitar.domain.dtos.hubspot.HubSpotDealKeyRecord;
 import com.realstate.habitar.domain.dtos.hubspot.HubSpotSearchResponse;
 import com.realstate.habitar.domain.dtos.hubspot.HubspotDealDtoApp;
-import com.realstate.habitar.infraestructure.adapters.interfaces.HspotClientRepository;
+import com.realstate.habitar.infraestructure.adapters.interfaces.hubspot.HspotClientRepository;
 import com.realstate.habitar.infraestructure.advicers.exceptions.ExternalServiceException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -14,8 +14,6 @@ import org.springframework.web.reactive.resource.NoResourceFoundException;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-
 
 
 @Repository

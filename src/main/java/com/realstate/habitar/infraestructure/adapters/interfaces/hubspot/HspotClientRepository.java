@@ -1,6 +1,5 @@
-package com.realstate.habitar.infraestructure.adapters.interfaces;
+package com.realstate.habitar.infraestructure.adapters.interfaces.hubspot;
 
-import com.realstate.habitar.application.usecases.hubspot.HubspotCommand;
 import com.realstate.habitar.domain.dtos.hubspot.HubSpotDealKeyRecord;
 import com.realstate.habitar.domain.dtos.hubspot.HubspotDealDtoApp;
 

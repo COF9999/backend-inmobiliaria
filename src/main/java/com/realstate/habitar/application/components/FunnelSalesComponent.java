@@ -16,10 +16,10 @@ import com.realstate.habitar.domain.dtos.user.UserRequestDto;
 import com.realstate.habitar.domain.ports.user.UserDaoPort;
 import com.realstate.habitar.domain.rules.ExportRules;
 import com.realstate.habitar.global.domain.ports.DaoCrudPort;
-import com.realstate.habitar.global.infraestructure.models.Role;
-import com.realstate.habitar.global.infraestructure.models.User;
-import com.realstate.habitar.infraestructure.adapters.interfaces.SalesCommissionScaleRepository;
-import com.realstate.habitar.infraestructure.adapters.interfaces.UserLiquidationRepository;
+import com.realstate.habitar.infraestructure.classes.model.Role;
+import com.realstate.habitar.infraestructure.classes.model.User;
+import com.realstate.habitar.infraestructure.adapters.interfaces.salesCommission.SalesCommissionScaleRepository;
+import com.realstate.habitar.infraestructure.adapters.interfaces.userLiquidation.UserLiquidationRepository;
 import com.realstate.habitar.infraestructure.config.data.GlobalVariablesCache;
 import com.realstate.habitar.infraestructure.classes.model.ProcessedDeal;
 import com.realstate.habitar.infraestructure.classes.model.SalesCommissionScale;
@@ -224,8 +224,7 @@ public class FunnelSalesComponent implements PipelineHandler, SalesComponentInte
                     username,
                     email,
                     identification,
-                    "",
-                    false
+                    ""
             ));
         }
     }

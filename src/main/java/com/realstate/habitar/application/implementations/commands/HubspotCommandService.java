@@ -1,7 +1,7 @@
 package com.realstate.habitar.application.implementations.commands;
 
 import com.realstate.habitar.application.usecases.hubspot.HubspotCommand;
-import com.realstate.habitar.infraestructure.adapters.interfaces.HspotClientRepository;
+import com.realstate.habitar.infraestructure.adapters.interfaces.hubspot.HspotClientRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
