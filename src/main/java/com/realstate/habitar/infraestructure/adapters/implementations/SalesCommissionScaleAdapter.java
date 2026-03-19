@@ -1,6 +1,6 @@
 package com.realstate.habitar.infraestructure.adapters.implementations;
 
-import com.realstate.habitar.infraestructure.adapters.interfaces.SalesCommissionScaleRepository;
+import com.realstate.habitar.infraestructure.adapters.interfaces.salesCommission.SalesCommissionScaleRepository;
 import com.realstate.habitar.infraestructure.classes.model.SalesCommissionScale;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;

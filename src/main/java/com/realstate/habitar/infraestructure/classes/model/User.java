@@ -1,14 +1,11 @@
-package com.realstate.habitar.global.infraestructure.models;
+package com.realstate.habitar.infraestructure.classes.model;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 
@@ -31,6 +28,9 @@ public class User {
     private String username;
 
     private String identification;
+
+    @Version
+    private Long version;
 
     private String email;
 
@@ -59,6 +59,13 @@ public class User {
     private Boolean isActive;
 
 
+    public void replaceRol(Role oldRol,Role newRole){
+        if (this.getRoles().remove(oldRol)){
+            this.getRoles().add(newRole);
+        }else {
+            throw new IllegalArgumentException("El usuario no tiene el rol viejo");
+        }
+    }
 }
 
 /*

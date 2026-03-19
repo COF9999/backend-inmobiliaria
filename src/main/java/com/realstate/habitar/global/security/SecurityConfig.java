@@ -51,7 +51,13 @@ public class SecurityConfig {
                 .sessionManagement(management-> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilter(new JwtAuthenticationFilter(authenticationManager))
                 .addFilter(new JwtRequestFilter(authenticationManager,userDetailsService));
-              /*  .addFilterBefore(
+
+
+        return httpSecurity.build();
+    }
+
+
+    /*  .addFilterBefore(
                         new JwtRequestFilter(authenticationManager, constantsSecurity),
                         UsernamePasswordAuthenticationFilter.class
                 )
@@ -60,9 +66,6 @@ public class SecurityConfig {
                 );
 
                */
-
-        return httpSecurity.build();
-    }
 /*
     @Bean
     public CorsFilter corsFilter() {

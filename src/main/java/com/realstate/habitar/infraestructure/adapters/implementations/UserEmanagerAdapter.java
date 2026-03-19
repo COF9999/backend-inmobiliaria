@@ -3,11 +3,10 @@ package com.realstate.habitar.infraestructure.adapters.implementations;
 
 import com.realstate.habitar.domain.ports.user.UserDaoPort;
 import com.realstate.habitar.global.domain.ports.DaoCrudPort;
-import com.realstate.habitar.global.infraestructure.models.User;
+import com.realstate.habitar.infraestructure.classes.model.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,6 +65,13 @@ public class UserEmanagerAdapter implements DaoCrudPort<User>, UserDaoPort {
         }
 
         return results.get(0);
+    }
+
+    @Override
+    public List<User> getListUsers() {
+        return entityManager.createQuery(
+                        "SELECT u FROM User u",User.class)
+                .getResultList();
     }
 
 

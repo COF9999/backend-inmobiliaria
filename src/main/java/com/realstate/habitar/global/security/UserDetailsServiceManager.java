@@ -3,8 +3,7 @@ package com.realstate.habitar.global.security;
 
 import com.realstate.habitar.domain.dtos.user.AuthUser;
 import com.realstate.habitar.domain.ports.user.UserDaoPort;
-import com.realstate.habitar.global.infraestructure.models.User;
-import com.realstate.habitar.infraestructure.advicers.exceptions.ResourceNotFound;
+import com.realstate.habitar.infraestructure.classes.model.User;
 import com.realstate.habitar.infraestructure.classes.custom.CustomUserDetails;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

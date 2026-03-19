@@ -1,6 +1,6 @@
 package com.realstate.habitar.domain.ports.role;
 
-import com.realstate.habitar.global.infraestructure.models.Role;
+import com.realstate.habitar.infraestructure.classes.model.Role;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
@@ -18,14 +18,11 @@ public class RoleEmanagenerAdapter implements RolePort {
 
 
     @Override
-    public Optional<Object> findRoleByName(String name) {
-        try {
-            Query query = entityManager.createQuery("select r from Role r where r.name=?1", Role.class);
-            query.setParameter(1,name);
-            return Optional.of(query.getSingleResult());
-        }catch (NoResultException e){
-            return Optional.empty();
-        }
-
+    public Optional<Role> findRoleByName(String name) {
+           return entityManager
+                   .createQuery("select r from Role r where r.name= :name", Role.class)
+                    .setParameter("name",name)
+                    .getResultStream()
+                    .findFirst();
     }
 }

@@ -1,9 +1,8 @@
 package com.realstate.habitar.domain.dtos.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.realstate.habitar.global.infraestructure.models.Role;
+import com.realstate.habitar.infraestructure.classes.model.Role;
 
-import java.util.List;
 import java.util.Set;
 
 public record UserRequestDto(
@@ -16,8 +15,6 @@ public record UserRequestDto(
         String email,
         String identification,
         @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-        String password,
-        Boolean isAdmin
-
+        String password
 ) {
 }

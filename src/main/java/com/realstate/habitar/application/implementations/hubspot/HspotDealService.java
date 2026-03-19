@@ -9,8 +9,8 @@ import com.realstate.habitar.domain.hubspot.ObjectHubSpot;
 import com.realstate.habitar.domain.hubspot.Operators;
 import com.realstate.habitar.domain.interfaces.Execute;
 import com.realstate.habitar.domain.rules.CronoRules;
-import com.realstate.habitar.infraestructure.adapters.interfaces.HspotClientRepository;
-import com.realstate.habitar.infraestructure.adapters.interfaces.ProcessedDealRepository;
+import com.realstate.habitar.infraestructure.adapters.interfaces.hubspot.HspotClientRepository;
+import com.realstate.habitar.infraestructure.adapters.interfaces.processDeal.ProcessedDealRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 

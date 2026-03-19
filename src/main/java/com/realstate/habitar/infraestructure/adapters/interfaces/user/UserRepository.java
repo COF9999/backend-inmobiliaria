@@ -1,6 +1,6 @@
-package com.realstate.habitar.infraestructure.adapters.interfaces;
+package com.realstate.habitar.infraestructure.adapters.interfaces.user;
 
-import com.realstate.habitar.global.infraestructure.models.User;
+import com.realstate.habitar.infraestructure.classes.model.User;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;

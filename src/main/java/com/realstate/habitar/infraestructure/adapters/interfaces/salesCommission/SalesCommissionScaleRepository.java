@@ -1,4 +1,4 @@
-package com.realstate.habitar.infraestructure.adapters.interfaces;
+package com.realstate.habitar.infraestructure.adapters.interfaces.salesCommission;
 
 import com.realstate.habitar.infraestructure.classes.model.SalesCommissionScale;
 

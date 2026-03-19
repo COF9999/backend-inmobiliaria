@@ -1,6 +1,5 @@
 package com.realstate.habitar.infraestructure.classes.model;
 
-import com.realstate.habitar.global.infraestructure.models.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

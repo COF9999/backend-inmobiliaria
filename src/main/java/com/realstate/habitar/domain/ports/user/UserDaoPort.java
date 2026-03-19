@@ -1,8 +1,9 @@
 package com.realstate.habitar.domain.ports.user;
 
 
-import com.realstate.habitar.global.infraestructure.models.User;
+import com.realstate.habitar.infraestructure.classes.model.User;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserDaoPort {
@@ -13,4 +14,6 @@ public interface UserDaoPort {
     Optional<User> getUser(String hubId);
 
     boolean isUserActive(String email);
+
+    List<User> getListUsers();
 }

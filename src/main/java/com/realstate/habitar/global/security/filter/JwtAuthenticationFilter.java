@@ -1,20 +1,16 @@
 package com.realstate.habitar.global.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.realstate.habitar.domain.dtos.user.AuthUser;
-import com.realstate.habitar.domain.ports.user.UserDaoPort;
 import com.realstate.habitar.global.security.constants.ConstantsSecurity;
 import com.realstate.habitar.global.security.jwtspace.Jwt;
-import com.realstate.habitar.infraestructure.advicers.exceptions.ResourceNotFound;
 import com.realstate.habitar.infraestructure.classes.custom.CustomUserDetails;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
-import com.realstate.habitar.global.infraestructure.models.User;
+import com.realstate.habitar.infraestructure.classes.model.User;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;

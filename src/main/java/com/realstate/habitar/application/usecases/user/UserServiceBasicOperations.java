@@ -1,6 +1,6 @@
 package com.realstate.habitar.application.usecases.user;
 
-import com.realstate.habitar.global.infraestructure.models.User;
+import com.realstate.habitar.infraestructure.classes.model.User;
 
 import java.util.Optional;
 
