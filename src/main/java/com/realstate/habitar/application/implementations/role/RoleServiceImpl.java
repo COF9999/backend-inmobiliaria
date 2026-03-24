@@ -1,4 +1,4 @@
-package com.realstate.habitar.application.implementations;
+package com.realstate.habitar.application.implementations.role;
 
 import com.realstate.habitar.application.usecases.role.RoleServiceBasicOperations;
 import com.realstate.habitar.domain.ports.role.RolePort;

@@ -5,6 +5,8 @@ import com.realstate.habitar.infraestructure.classes.model.User;
 import java.util.Optional;
 
 public interface UserServiceBasicOperations {
+    Optional<User> findUserByHubId(String hubId);
+
     Optional<User> findUserByEmail(String email);
 
     User update(User user);

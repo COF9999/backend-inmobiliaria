@@ -36,7 +36,7 @@ public class HubspotDealClient implements HspotClientRepository {
 
     @Override
     public List<HubspotDealDtoApp> findDeals(List<Map<String,Object>> mapList) {
-
+        System.out.println("**********************FIND-DEALS");
         Map<String, Object> requestBody = Map.of(
                 "filterGroups", List.of(
                         Map.of(
@@ -55,7 +55,14 @@ public class HubspotDealClient implements HspotClientRepository {
                     .block()
                     .getResults()
                     .stream()
-                    .map(h-> new HubspotDealDtoApp(h.id(),h.properties().get("hubspot_owner_id"), PipelineType.getFieldNameByMap(h.properties().get("pipeline")),h.properties()))
+                    .peek(System.out::println)
+                    .map(h-> mergeUser(new HubspotDealDtoApp(
+                            h.id(),
+                            h.properties().get("hubspot_owner_id"),
+                            null,
+                            PipelineType.getFieldNameByMap(h.properties().get("pipeline")),
+                            h.properties())
+                    ))
                     .toList();
         }catch (WebClientResponseException e) {
             String errorBody = e.getResponseBodyAsString();
@@ -84,13 +91,15 @@ public class HubspotDealClient implements HspotClientRepository {
                 throw new NoResourceFoundException("Elemento negocio no encontrado");
             }
 
-            // 2. Mapeas directamente el objeto recibido
-            return new HubspotDealDtoApp(
+            HubspotDealDtoApp mappedResponse = new HubspotDealDtoApp(
                     response.id(),
                     response.properties().get("hubspot_owner_id"),
+                    null,
                     response.properties().get("pipeline"),
                     response.properties()
             );
+
+            return mergeUser(mappedResponse);
 
         } catch (WebClientResponseException e) {
             String errorBody = e.getResponseBodyAsString();
@@ -101,6 +110,17 @@ public class HubspotDealClient implements HspotClientRepository {
         }
     }
 
+    private HubspotDealDtoApp mergeUser(HubspotDealDtoApp hubspotDealDtoApp){
+        Map<String,Object> userFound = getOwnerByHubIDstatus(hubspotDealDtoApp.ownerId());
+        String firstName = (String) userFound.get("firstName");
+        String lastName = (String) userFound.get("lastName");
+        return new HubspotDealDtoApp(hubspotDealDtoApp.id()
+                ,hubspotDealDtoApp.ownerId()
+                ,firstName+" "+lastName,
+                hubspotDealDtoApp.pipelineType(),
+                hubspotDealDtoApp.properties()
+        );
+    }
 
     public Map<String, Object> getOwnerByHubIDstatus(String hubId) {
         try {
@@ -128,33 +148,4 @@ public class HubspotDealClient implements HspotClientRepository {
                 .bodyToMono(Map.class)
                 .block();
     }
-
-
-/*
-    public Boolean isOwnerActive(String hubId) {
-        try {
-            Map<String, Object> response = hubspotWebClient.get()
-                    .uri(uriBuilder -> uriBuilder
-                            .path(apiOwners + "{id}") // El marcador es {id}
-                            .queryParam("archived", "true")
-                            .build(hubId))            // AQUÍ se pasa el hubId al marcador {id}
-                    .retrieve()
-                    .bodyToMono(Map.class)
-                    .block();
-
-            // En HubSpot: archived = false significa que está ACTIVO
-            return response != null && Boolean.FALSE.equals(response.get("archived"));
-
-        } catch (WebClientResponseException e) {
-            String errorBody = e.getResponseBodyAsString();
-            System.err.println("Cuerpo del error HubSpot: " + errorBody);
-            throw new ExternalServiceException("Error HTTP desde HubSpot: " + errorBody);
-        } catch (Exception e) {
-            throw new ExternalServiceException(
-                    "Error inesperado comunicándose con HubSpot "+e.getMessage());
-        }
-    }
-
- */
-
 }

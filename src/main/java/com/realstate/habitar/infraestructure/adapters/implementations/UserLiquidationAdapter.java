@@ -23,8 +23,6 @@ public class UserLiquidationAdapter implements DaoCrudPort<UserLiquidation> , Us
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public void addAmount(String hubId, BigDecimal amountUser) {
-        System.out.println("HUBID "+hubId+"_"+amountUser);
-
             Query query = entityManager.createQuery(
                     "UPDATE UserLiquidation u " +
                             "SET u.totalAmount = u.totalAmount + :amountUser " +
