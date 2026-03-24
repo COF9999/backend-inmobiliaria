@@ -192,6 +192,11 @@ public class UserServiceImpl implements UserService, UserServiceBasicOperations 
     }
 
     @Override
+    public Optional<User> findUserByHubId(String hubId) {
+        return Optional.empty();
+    }
+
+    @Override
     public Optional<User> findUserByEmail(String email) {
         return userDaoPort.findByEmail(email)
                 .map(objUser-> (User) objUser);

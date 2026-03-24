@@ -21,7 +21,7 @@ public class HubSpotDealRest {
 
     @PostMapping("/deals-not-proccesed")
     public ResponseEntity<List<HubspotDealDtoApp>> getDealsNotClosed(@RequestBody LiquidationTimeRecord liquidationTimeRecord){
-        System.out.println("FUNCIONA");
+        System.out.println("DEVUELTA : "+liquidationTimeRecord.toString());
         return ResponseEntity.ok(hspotDealEventService.getDealsHubspot(liquidationTimeRecord));
     }
 

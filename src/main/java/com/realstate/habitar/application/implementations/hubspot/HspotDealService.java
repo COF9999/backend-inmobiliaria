@@ -1,4 +1,5 @@
 package com.realstate.habitar.application.implementations.hubspot;
+import com.realstate.habitar.application.usecases.user.UserServiceBasicOperations;
 import com.realstate.habitar.domain.dispactchers.FunnelSalesType;
 import com.realstate.habitar.domain.dispactchers.PipelineHandler;
 import com.realstate.habitar.domain.dispactchers.PipelineType;
@@ -11,6 +12,7 @@ import com.realstate.habitar.domain.interfaces.Execute;
 import com.realstate.habitar.domain.rules.CronoRules;
 import com.realstate.habitar.infraestructure.adapters.interfaces.hubspot.HspotClientRepository;
 import com.realstate.habitar.infraestructure.adapters.interfaces.processDeal.ProcessedDealRepository;
+import com.realstate.habitar.infraestructure.classes.model.User;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -25,12 +27,16 @@ public class HspotDealService {
 
     private final ProcessedDealRepository processedDealRepository;
 
+    private final UserServiceBasicOperations userServiceBasicOperations;
+
     public HspotDealService(PipelineHandlerFactory handlerFactory,
                             HspotClientRepository hubspotClientRepository,
-                            ProcessedDealRepository processedDealRepository){
+                            ProcessedDealRepository processedDealRepository,
+                            UserServiceBasicOperations userServiceBasicOperations){
         this.handlerFactory = handlerFactory;
         this.hubspotClientRepository = hubspotClientRepository;
         this.processedDealRepository = processedDealRepository;
+        this.userServiceBasicOperations = userServiceBasicOperations;
     }
 
 
@@ -85,6 +91,7 @@ public class HspotDealService {
         List<HubspotDealDtoApp> list =  Arrays
                 .stream(PipelineType.values())
                 .map(p-> getDataFromHubSpot(p,liquidationTimeRecord))
+                .peek(a-> System.out.println("****C "))
                 .flatMap(List::stream)
                 .filter(deal-> findNotIsProcessed(deal.id()+"-"+deal.ownerId()))
                 .toList();
@@ -99,7 +106,9 @@ public class HspotDealService {
     private List<HubspotDealDtoApp> getDataFromHubSpot(PipelineType pipelineType, LiquidationTimeRecord liquidationTimeRecord){
         try {
             LiquidationTimeRecord timeRecord = CronoRules.getMileSecondsTime(liquidationTimeRecord);
+            System.out.println(timeRecord.toString());
             List<Map<String,Object>> filters = buildStuctureConsultHubSpot(true,pipelineType,timeRecord,null);
+            System.out.println("BIEN FILTER");
             return hubspotClientRepository.findDeals(filters);
         }catch (Exception e){
             throw new UnsupportedOperationException(e.getMessage());
@@ -173,6 +182,19 @@ public class HspotDealService {
 
     private boolean findNotIsProcessed(String key){
         return processedDealRepository.notIsProcessed(key);
+    }
+
+    private HubspotDealDtoApp completeResponse(HubspotDealDtoApp hubspotDealDtoApp){
+        Optional<User> user = userServiceBasicOperations.findUserByHubId(hubspotDealDtoApp.ownerId());
+        return user
+                .map(userOpt-> new HubspotDealDtoApp(hubspotDealDtoApp.id(),
+                        hubspotDealDtoApp.ownerId(),
+                        userOpt.getName(),
+                        hubspotDealDtoApp.pipelineType(),
+                        hubspotDealDtoApp.properties()
+                        )
+                )
+                .orElseThrow();
     }
 
 
