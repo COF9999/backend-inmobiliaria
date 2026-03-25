@@ -10,5 +10,5 @@ public interface PipelineHandler {
     PipelineType pipelineKey();
 
     void handle(Map<String, List<HubspotDealDtoApp>> listDeals,
-                TypeMethodFunnel typeMethodFunnel);
+                String typeMethodFunnel);
 }

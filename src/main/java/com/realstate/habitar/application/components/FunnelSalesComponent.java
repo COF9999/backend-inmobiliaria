@@ -6,7 +6,6 @@ import com.realstate.habitar.application.usecases.user.UserService;
 import com.realstate.habitar.domain.baselogic.FunnelSales;
 import com.realstate.habitar.domain.dispactchers.PipelineHandler;
 import com.realstate.habitar.domain.dispactchers.PipelineType;
-import com.realstate.habitar.domain.dispactchers.TypeMethodFunnel;
 import com.realstate.habitar.domain.dtos.hubspot.CalculateOwnerLiquidationRecord;
 import com.realstate.habitar.domain.dtos.hubspot.HubspotDealDtoApp;
 import com.realstate.habitar.domain.dtos.sales.LiquidationMonthReportRecord;
@@ -84,10 +83,11 @@ public class FunnelSalesComponent implements PipelineHandler, SalesComponentInte
     }
 
     @Override
-    public void handle(Map<String, List<HubspotDealDtoApp>> listDeals, TypeMethodFunnel typeMethodFunnel) {
+    public void handle(Map<String, List<HubspotDealDtoApp>> listDeals, String typeMethodFunnel) {
         System.out.println("Handle");
-        switch (typeMethodFunnel.getTargetValue()){
+        switch (typeMethodFunnel){
             case "DEAL" -> generateLiquidationOneDeal(listDeals);
+            case "REPORT"->generateReport(listDeals);
         }
 
     }
@@ -102,20 +102,6 @@ public class FunnelSalesComponent implements PipelineHandler, SalesComponentInte
             throw e;
         }
     }
-
-
-    /*
-    public generateLiquidationOneDeal(){
-        try {
-            CalculateOwnerLiquidationRecord calculateOwnerLiquidationRecord = calculateOwnerLiquidation(listDeals);
-            updateAmount(calculateOwnerLiquidationRecord.resultOperation());
-            closeDealsAlreadyProccessed(calculateOwnerLiquidationRecord.dealsProccesed());
-        }catch (Exception e){
-            throw e;
-        }
-    }
-
-     */
 
 
     public void generateReport(Map<String, List<HubspotDealDtoApp>> listDeals) {
