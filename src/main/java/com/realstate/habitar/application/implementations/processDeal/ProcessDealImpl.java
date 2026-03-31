@@ -3,7 +3,6 @@ package com.realstate.habitar.application.implementations.processDeal;
 import com.realstate.habitar.application.usecases.processDeal.ProcessDealService;
 import com.realstate.habitar.domain.dtos.processDeal.ProcessDealResponseDto;
 import com.realstate.habitar.infraestructure.adapters.interfaces.processDeal.ProcessedDealRepository;
-import com.realstate.habitar.infraestructure.classes.model.ProcessedDeal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +18,12 @@ public class ProcessDealImpl implements ProcessDealService {
     }
 
     @Override
+    public boolean notIsProcessed(String key) {
+        return processedDealRepository.notIsProcessed(key);
+    }
+
+/*
+    @Override
     @Transactional
     public List<ProcessDealResponseDto> getProcessDeals() {
         return processedDealRepository.getProcessDeals()
@@ -26,6 +31,10 @@ public class ProcessDealImpl implements ProcessDealService {
                 .map(this::convertTo)
                 .toList();
     }
+
+ */
+
+    /*
 
     @Override
     public ProcessDealResponseDto convertTo(ProcessedDeal processedDeal) {
@@ -36,4 +45,6 @@ public class ProcessDealImpl implements ProcessDealService {
                 processedDeal.getClosedAt(),
                 processedDeal.getProcessedAt());
     }
+
+     */
 }

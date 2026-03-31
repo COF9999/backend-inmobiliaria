@@ -1,5 +1,6 @@
 package com.realstate.habitar.infraestructure.rest.hubspot;
 
+import com.realstate.habitar.application.implementations.commands.HubSpotDealRegistry;
 import com.realstate.habitar.application.implementations.hubspot.HspotDealService;
 import com.realstate.habitar.domain.dtos.hubspot.HubSpotDealKeyRecord;
 import com.realstate.habitar.domain.dtos.hubspot.HubspotDealDtoApp;
@@ -15,12 +16,21 @@ public class HubSpotDealRest {
 
     private final HspotDealService hspotDealEventService;
 
-    public HubSpotDealRest(HspotDealService hspotDealEventService) {
+    private final HubSpotDealRegistry hubSpotDealRegistry;
+
+    public HubSpotDealRest(HspotDealService hspotDealEventService,HubSpotDealRegistry hubSpotDealRegistry) {
         this.hspotDealEventService = hspotDealEventService;
+        this.hubSpotDealRegistry = hubSpotDealRegistry;
     }
 
-    @PostMapping("/deals-not-proccesed")
-    public ResponseEntity<List<HubspotDealDtoApp>> getDealsNotClosed(@RequestBody LiquidationTimeRecord liquidationTimeRecord){
+    @PostMapping("/register-deal")
+    public ResponseEntity<Void> registerSelectDeal(@RequestBody HubSpotDealKeyRecord hubSpotDealKeyRecord)  {
+        hubSpotDealRegistry.createDealRegistry(hubSpotDealKeyRecord);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/deals-not-register")
+    public ResponseEntity<List<HubspotDealDtoApp>> getDealsNotRegister(@RequestBody LiquidationTimeRecord liquidationTimeRecord){
         System.out.println("DEVUELTA : "+liquidationTimeRecord.toString());
         return ResponseEntity.ok(hspotDealEventService.getDealsHubspot(liquidationTimeRecord));
     }

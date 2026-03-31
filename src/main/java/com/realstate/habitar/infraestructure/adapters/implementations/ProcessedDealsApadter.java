@@ -2,7 +2,6 @@ package com.realstate.habitar.infraestructure.adapters.implementations;
 
 import com.realstate.habitar.global.domain.ports.DaoCrudPort;
 import com.realstate.habitar.infraestructure.adapters.interfaces.processDeal.ProcessedDealRepository;
-import com.realstate.habitar.infraestructure.classes.model.ProcessedDeal;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
@@ -14,12 +13,23 @@ import java.util.Optional;
 
 
 @Repository
-public class ProcessedDealsApadter implements DaoCrudPort<ProcessedDeal>,ProcessedDealRepository {
+public class ProcessedDealsApadter implements ProcessedDealRepository  {
 
 
     @PersistenceContext
     private EntityManager entityManager;
 
+    @Override
+    public boolean isExistKey(String key) {
+        return false;
+    }
+
+    @Override
+    public boolean notIsProcessed(String key) {
+        return false;
+    }
+
+    /*
 
     public boolean isExistKey(String key){
         Long count = entityManager.createQuery("SELECT COUNT(p) FROM ProcessedDeal p WHERE p.dealId = :key", Long.class)
@@ -35,6 +45,8 @@ public class ProcessedDealsApadter implements DaoCrudPort<ProcessedDeal>,Process
                 .getSingleResult();
         return count == 0;
     }
+
+
 
     @Override
     public List<ProcessedDeal> getProcessDeals() {
@@ -68,4 +80,6 @@ public class ProcessedDealsApadter implements DaoCrudPort<ProcessedDeal>,Process
     public Optional<ProcessedDeal> delete(Long id) {
         return Optional.empty();
     }
+
+     */
 }

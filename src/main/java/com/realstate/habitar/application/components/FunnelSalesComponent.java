@@ -20,7 +20,6 @@ import com.realstate.habitar.infraestructure.classes.model.User;
 import com.realstate.habitar.infraestructure.adapters.interfaces.salesCommission.SalesCommissionScaleRepository;
 import com.realstate.habitar.infraestructure.adapters.interfaces.userLiquidation.UserLiquidationRepository;
 import com.realstate.habitar.infraestructure.config.data.GlobalVariablesCache;
-import com.realstate.habitar.infraestructure.classes.model.ProcessedDeal;
 import com.realstate.habitar.infraestructure.classes.model.SalesCommissionScale;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -48,7 +47,7 @@ public class FunnelSalesComponent implements PipelineHandler, SalesComponentInte
 
     private final UserLiquidationRepository userLiquidationRepository;
 
-    private final DaoCrudPort<ProcessedDeal> processedDealDaoCrudPort;
+   // private final DaoCrudPort<ProcessedDeal> processedDealDaoCrudPort;
 
     private final GlobalVariablesCache globalVariablesCache;
 
@@ -62,7 +61,7 @@ public class FunnelSalesComponent implements PipelineHandler, SalesComponentInte
                                 SalesCommissionScaleRepository salesCommissionScaleRepository,
                                 FunnelSales funnelSales,
                                 UserLiquidationRepository userLiquidationRepository,
-                                DaoCrudPort<ProcessedDeal> processedDealDaoCrudPort,
+                             //   DaoCrudPort<ProcessedDeal> processedDealDaoCrudPort,
                                 GlobalVariablesCache globalVariablesCache,
                                 UserDaoPort userUserDaoPort,
                                 HubspotCommand hubspotCommands,
@@ -71,7 +70,7 @@ public class FunnelSalesComponent implements PipelineHandler, SalesComponentInte
         this.salesCommissionScaleRepository = salesCommissionScaleRepository;
         this.funnelSales = funnelSales;
         this.userLiquidationRepository = userLiquidationRepository;
-        this.processedDealDaoCrudPort = processedDealDaoCrudPort;
+      //  this.processedDealDaoCrudPort = processedDealDaoCrudPort;
         this.globalVariablesCache = globalVariablesCache;
         this.userUserDaoPort = userUserDaoPort;
         this.hubspotCommands = hubspotCommands;
@@ -163,7 +162,8 @@ public class FunnelSalesComponent implements PipelineHandler, SalesComponentInte
     private void closeDealsAlreadyProccessed(Set<HubspotDealDtoApp> dealsProccesed) {
         for (HubspotDealDtoApp deal:dealsProccesed){
             Long idUserLiquidator = userLiquidationRepository.getIdUserLiquidation(deal.ownerId());
-            ProcessedDeal processedDeal = new ProcessedDeal(
+
+           /* ProcessedDeal processedDeal = new ProcessedDeal(
                     deal.id()+"-"+deal.ownerId(),
                     deal.pipelineType(),
                     idUserLiquidator,
@@ -171,6 +171,8 @@ public class FunnelSalesComponent implements PipelineHandler, SalesComponentInte
                     OffsetDateTime.parse(deal.properties().get("closedate")).toLocalDateTime(),
                     LocalDateTime.now());
             processedDealDaoCrudPort.create(processedDeal);
+
+            */
         }
     }
 

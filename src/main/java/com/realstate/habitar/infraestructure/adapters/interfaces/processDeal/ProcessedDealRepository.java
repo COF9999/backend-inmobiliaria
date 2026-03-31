@@ -1,7 +1,5 @@
 package com.realstate.habitar.infraestructure.adapters.interfaces.processDeal;
 
-import com.realstate.habitar.infraestructure.classes.model.ProcessedDeal;
-
 import java.util.List;
 
 public interface ProcessedDealRepository {
@@ -9,5 +7,5 @@ public interface ProcessedDealRepository {
 
     boolean notIsProcessed(String key);
 
-    List<ProcessedDeal> getProcessDeals();
+   // List<ProcessedDeal> getProcessDeals();
 }
