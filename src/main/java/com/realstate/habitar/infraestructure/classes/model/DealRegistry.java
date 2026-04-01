@@ -1,10 +1,12 @@
 package com.realstate.habitar.infraestructure.classes.model;
 
 
+import com.realstate.habitar.domain.enums.StatesObjects;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -35,6 +37,7 @@ public class DealRegistry {
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
 
+    @Setter
     @Column(columnDefinition = "TINYINT")
-    private Byte state;
+    private StatesObjects state;
 }

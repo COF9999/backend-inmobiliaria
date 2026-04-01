@@ -64,4 +64,13 @@ public class DealRegistryAdapter implements DaoCrudPort<DealRegistry>,DealRegist
                 .setParameter("state",state)
                 .getResultList();
     }
+
+    @Override
+    public Optional<DealRegistry> findByDealUserId(String dealUserId) {
+        return entityManager.createQuery("SELECT d FROM DealRegistry d where d.dealUserId = :dealUserId",DealRegistry.class)
+                .setParameter("dealUserId",dealUserId)
+                .getResultStream()
+                .findFirst();
+
+    }
 }

@@ -3,7 +3,7 @@ import com.realstate.habitar.application.usecases.dealRegistry.DealRegistryServi
 import com.realstate.habitar.domain.dispactchers.PipelineHandler;
 import com.realstate.habitar.domain.dispactchers.PipelineType;
 import com.realstate.habitar.domain.dispactchers.TypeMethodFunnel;
-import com.realstate.habitar.domain.dtos.hubspot.HubSpotDealKeyRecord;
+import com.realstate.habitar.domain.dtos.hubspot.DealMasterBifurcationRecord;
 import com.realstate.habitar.domain.dtos.hubspot.HubspotDealDtoApp;
 import com.realstate.habitar.domain.dtos.sales.LiquidationTimeRecord;
 import com.realstate.habitar.domain.hubspot.ObjectHubSpot;
@@ -37,7 +37,7 @@ public class HspotDealService {
 
 
     @Transactional
-    public void liquidateOnlyDeal(HubSpotDealKeyRecord hubSpotDealKeyRecord){
+    public void liquidateOnlyDeal(DealMasterBifurcationRecord hubSpotDealKeyRecord){
         HubspotDealDtoApp hubspotDealDtoApp = hubspotClientRepository.findDealByPrincipalInfo(hubSpotDealKeyRecord);
 
 
@@ -49,7 +49,7 @@ public class HspotDealService {
         grouped.forEach((pipeline, listDealsByOwner) -> {
             processCloseDeal(pipeline, listDealsByOwner, (p, list) -> {
                 PipelineHandler handler = getPipelineHandler(p);
-                String typeMehod = hubSpotDealKeyRecord.type();
+                String typeMehod = hubSpotDealKeyRecord.typeMethod();
                 if (!TypeMethodFunnel.isIncludeMethod(pipeline,typeMehod)){
                     ThrowableActions.launchRuntimeExeption(()-> new IllegalArgumentException("Type-method-not exists"));
                 };

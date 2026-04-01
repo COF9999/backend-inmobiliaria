@@ -2,7 +2,7 @@ package com.realstate.habitar.infraestructure.rest.hubspot;
 
 import com.realstate.habitar.application.implementations.commands.HubSpotDealRegistry;
 import com.realstate.habitar.application.implementations.hubspot.HspotDealService;
-import com.realstate.habitar.domain.dtos.hubspot.HubSpotDealKeyRecord;
+import com.realstate.habitar.domain.dtos.hubspot.DealMasterBifurcationRecord;
 import com.realstate.habitar.domain.dtos.hubspot.HubspotDealDtoApp;
 import com.realstate.habitar.domain.dtos.sales.LiquidationTimeRecord;
 import org.springframework.http.ResponseEntity;
@@ -24,8 +24,8 @@ public class HubSpotDealRest {
     }
 
     @PostMapping("/register-deal")
-    public ResponseEntity<Void> registerSelectDeal(@RequestBody HubSpotDealKeyRecord hubSpotDealKeyRecord)  {
-        hubSpotDealRegistry.createDealRegistry(hubSpotDealKeyRecord);
+    public ResponseEntity<Void> registerSelectDeal(@RequestBody DealMasterBifurcationRecord hubSpotDealKeyRecord)  {
+        hubSpotDealRegistry.deciteTocreateDealRegistry(hubSpotDealKeyRecord);
         return ResponseEntity.ok().build();
     }
 
@@ -36,7 +36,7 @@ public class HubSpotDealRest {
     }
 
     @PostMapping("/liquidate-select-deal")
-    public ResponseEntity<Void> liquidateSelectDeal(@RequestBody HubSpotDealKeyRecord hubSpotDealKeyRecord)  {
+    public ResponseEntity<Void> liquidateSelectDeal(@RequestBody DealMasterBifurcationRecord hubSpotDealKeyRecord)  {
         hspotDealEventService.liquidateOnlyDeal(hubSpotDealKeyRecord);
         System.out.println("---------------------------------BIEN");
         return ResponseEntity.ok().build();

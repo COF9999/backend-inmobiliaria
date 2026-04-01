@@ -1,7 +1,7 @@
 package com.realstate.habitar.infraestructure.adapters.implementations;
 
 import com.realstate.habitar.domain.dispactchers.PipelineType;
-import com.realstate.habitar.domain.dtos.hubspot.HubSpotDealKeyRecord;
+import com.realstate.habitar.domain.dtos.hubspot.DealMasterBifurcationRecord;
 import com.realstate.habitar.domain.dtos.hubspot.HubSpotSearchResponse;
 import com.realstate.habitar.domain.dtos.hubspot.HubspotDealDtoApp;
 import com.realstate.habitar.infraestructure.adapters.interfaces.hubspot.HspotClientRepository;
@@ -75,7 +75,7 @@ public class HubspotDealClient implements HspotClientRepository {
     }
 
     @Override
-    public HubspotDealDtoApp findDealByPrincipalInfo(HubSpotDealKeyRecord hubSpotDealKeyRecord) {
+    public HubspotDealDtoApp findDealByPrincipalInfo(DealMasterBifurcationRecord hubSpotDealKeyRecord) {
         try {
             // Se usa el endpoint: /crm/v3/objects/deals/{dealId}
             HubspotDealDtoApp response = hubspotWebClient.get()
