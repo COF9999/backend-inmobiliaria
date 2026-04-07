@@ -32,7 +32,6 @@ public class HubSpotDealRegistry {
         this.dealRegistryService = dealRegistryService;
     }
 
-
     @Transactional
     public void manipulateCreationDealRegistry(DealMasterBifurcationRecord dealMasterBifurcationRecord){
         HubspotDealDtoApp hubspotDealDtoApp = hspotClientRepository.findDealByPrincipalInfo(dealMasterBifurcationRecord);
@@ -68,10 +67,4 @@ public class HubSpotDealRegistry {
 
         dealRegistryDaoCrudPort.create(dealRegistry);
     }
-
-
-
-
-
-
 }

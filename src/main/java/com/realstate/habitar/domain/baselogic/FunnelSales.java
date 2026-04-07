@@ -1,4 +1,7 @@
 package com.realstate.habitar.domain.baselogic;
+import com.realstate.habitar.domain.baselogic.interfaces.DetailVisitorSales;
+import com.realstate.habitar.domain.dtos.funnelsDtos.sales.DetailPaymentFunnel;
+import com.realstate.habitar.domain.dtos.funnelsDtos.sales.Resume;
 import com.realstate.habitar.domain.dtos.sales.SalesToAppRecord;
 import com.realstate.habitar.domain.dtos.sales.SalesToDomainRecord;
 import com.realstate.habitar.infraestructure.classes.model.SalesCommissionScale;
@@ -16,18 +19,23 @@ public class FunnelSales {
         Long amountToFindByRange = Long.parseLong(amountFromHubspot);
         SalesCommissionScale salesCommissionScale = findSaleCommisionByRange(salesToDomainRecord.listSalesCommissionScales(),amountToFindByRange);
         BigDecimal amountToOperate = new BigDecimal(amountFromHubspot);
-        BigDecimal percentage = salesCommissionScale.getCommissionPercentage();
+        BigDecimal commissionPercentage = salesCommissionScale.getCommissionPercentage();
         BigDecimal amountCompany = BigDecimal.ZERO;
         BigDecimal amountAgent = BigDecimal.ZERO;
         if (salesToDomainRecord.isOwner()){
             // Owner
             amountCompany = applyPercentage(amountToOperate,salesToDomainRecord.percentageSale(),scaleTax);
+            return new SalesToAppRecord(BigDecimal.ZERO,amountCompany,salesToDomainRecord.percentageSale(),BigDecimal.ZERO,BigDecimal.ZERO);
         }else {
             // Agent
-            amountAgent = applyPercentage(amountToOperate,percentage,scaleTax);
-            amountCompany = applyPercentage(amountToOperate,salesToDomainRecord.percentageSale().subtract(percentage),scaleTax);
+
+            BigDecimal substractPercentage = salesToDomainRecord.percentageSale().subtract(commissionPercentage);
+
+            amountAgent = applyPercentage(amountToOperate,commissionPercentage,scaleTax);
+            amountCompany = applyPercentage(amountToOperate,substractPercentage,scaleTax);
+
+            return new SalesToAppRecord(amountAgent,amountCompany,salesToDomainRecord.percentageSale(),commissionPercentage,substractPercentage);
         }
-        return new SalesToAppRecord(amountAgent,amountCompany);
     }
 
     private BigDecimal applyPercentage(BigDecimal amountToOperate, BigDecimal percentageToOperate, BigDecimal scaleTax){

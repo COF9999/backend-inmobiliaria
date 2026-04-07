@@ -1,5 +1,6 @@
 package com.realstate.habitar.domain.dispactchers;
 
+import com.realstate.habitar.domain.dtos.funnelsDtos.ResultDto;
 import com.realstate.habitar.domain.dtos.hubspot.HubspotDealDtoApp;
 
 import java.util.List;
@@ -9,6 +10,6 @@ public interface PipelineHandler {
 
     PipelineType pipelineKey();
 
-    void handle(Map<String, List<HubspotDealDtoApp>> listDeals,
-                String typeMethodFunnel);
+    ResultDto handle(Map<String, List<HubspotDealDtoApp>> listDeals,
+                     String typeMethodFunnel);
 }

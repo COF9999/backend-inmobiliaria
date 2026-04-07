@@ -3,6 +3,7 @@ import com.realstate.habitar.application.usecases.dealRegistry.DealRegistryServi
 import com.realstate.habitar.domain.dispactchers.PipelineHandler;
 import com.realstate.habitar.domain.dispactchers.PipelineType;
 import com.realstate.habitar.domain.dispactchers.TypeMethodFunnel;
+import com.realstate.habitar.domain.dtos.funnelsDtos.ResultDto;
 import com.realstate.habitar.domain.dtos.hubspot.DealMasterBifurcationRecord;
 import com.realstate.habitar.domain.dtos.hubspot.HubspotDealDtoApp;
 import com.realstate.habitar.domain.dtos.sales.LiquidationTimeRecord;
@@ -26,7 +27,6 @@ public class HspotDealService {
 
     private final DealRegistryService dealRegistryService;
 
-
     public HspotDealService(PipelineHandlerFactory handlerFactory,
                             HspotClientRepository hubspotClientRepository,
                             DealRegistryService dealRegistryService){
@@ -37,25 +37,28 @@ public class HspotDealService {
 
 
     @Transactional
-    public void liquidateOnlyDeal(DealMasterBifurcationRecord hubSpotDealKeyRecord){
-        HubspotDealDtoApp hubspotDealDtoApp = hubspotClientRepository.findDealByPrincipalInfo(hubSpotDealKeyRecord);
-
+    public List<ResultDto> liquidateOnlyDeal(DealMasterBifurcationRecord dealMasterBifurcationRecord){
+        HubspotDealDtoApp hubspotDealDtoApp = hubspotClientRepository.findDealByPrincipalInfo(dealMasterBifurcationRecord);
 
         List<HubspotDealDtoApp> listDeals = List.of(hubspotDealDtoApp);
 
         Map<String,Map<String,List<HubspotDealDtoApp>>> grouped = grouped(listDeals);
 
+        List<ResultDto> resultDtoList = new ArrayList<>();
 
         grouped.forEach((pipeline, listDealsByOwner) -> {
             processCloseDeal(pipeline, listDealsByOwner, (p, list) -> {
                 PipelineHandler handler = getPipelineHandler(p);
-                String typeMehod = hubSpotDealKeyRecord.typeMethod();
+                String typeMehod = dealMasterBifurcationRecord.typeMethod();
                 if (!TypeMethodFunnel.isIncludeMethod(pipeline,typeMehod)){
                     ThrowableActions.launchRuntimeExeption(()-> new IllegalArgumentException("Type-method-not exists"));
                 };
-                handler.handle(listDealsByOwner,typeMehod);
+                ResultDto resultDto = handler.handle(listDealsByOwner,typeMehod);
+                resultDtoList.add(resultDto);
             });
         });
+
+        return resultDtoList;
     }
 
     @Transactional

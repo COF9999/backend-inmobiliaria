@@ -25,7 +25,7 @@ public class HubSpotDealRest {
 
     @PostMapping("/register-deal")
     public ResponseEntity<Void> registerSelectDeal(@RequestBody DealMasterBifurcationRecord hubSpotDealKeyRecord)  {
-        hubSpotDealRegistry.deciteTocreateDealRegistry(hubSpotDealKeyRecord);
+        hubSpotDealRegistry.manipulateCreationDealRegistry(hubSpotDealKeyRecord);
         return ResponseEntity.ok().build();
     }
 

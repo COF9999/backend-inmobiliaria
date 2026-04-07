@@ -2,6 +2,7 @@ package com.realstate.habitar.application.components;
 
 import com.realstate.habitar.domain.dispactchers.PipelineHandler;
 import com.realstate.habitar.domain.dispactchers.PipelineType;
+import com.realstate.habitar.domain.dtos.funnelsDtos.ResultDto;
 import com.realstate.habitar.domain.dtos.hubspot.HubspotDealDtoApp;
 import org.springframework.stereotype.Component;
 
@@ -17,8 +18,9 @@ public class FunnelRentPlacement implements PipelineHandler {
     }
 
     @Override
-    public void handle(Map<String, List<HubspotDealDtoApp>> listDeals, String typeMethodFunnel) {
+    public ResultDto handle(Map<String, List<HubspotDealDtoApp>> listDeals, String typeMethodFunnel) {
         //handleRentPlacement(dealsByOwner);
+        return null;
     }
 
 
@@ -38,4 +40,6 @@ public class FunnelRentPlacement implements PipelineHandler {
         System.out.println();
         System.out.println(totalAmount);
     }
+
+
 }

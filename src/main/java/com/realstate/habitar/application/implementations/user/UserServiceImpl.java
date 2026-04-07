@@ -193,7 +193,7 @@ public class UserServiceImpl implements UserService, UserServiceBasicOperations 
 
     @Override
     public Optional<User> findUserByHubId(String hubId) {
-        return Optional.empty();
+        return userDaoPort.getUser(hubId);
     }
 
     @Override

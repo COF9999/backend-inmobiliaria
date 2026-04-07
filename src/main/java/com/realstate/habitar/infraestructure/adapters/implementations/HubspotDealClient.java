@@ -81,7 +81,7 @@ public class HubspotDealClient implements HspotClientRepository {
             HubspotDealDtoApp response = hubspotWebClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/crm/v3/objects/deals/{dealId}") // Ruta limpia sin "search"
-                            .queryParam("properties", "hubspot_owner_id,dealname,amount,dealstage,pipeline,closedate")
+                            .queryParam("properties", "hubspot_owner_id,dealname,amount,dealstage,pipeline,closedate,captador_del_inmueble")
                             .build(hubSpotDealKeyRecord.dealId())) // WebClient acepta String aquí, no hace falta parsear
                     .retrieve()
                     .bodyToMono(HubspotDealDtoApp.class) // Clase que represente un solo Deal
