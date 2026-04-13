@@ -1,16 +1,15 @@
 package com.realstate.habitar.infraestructure.classes.model;
 
 
+import com.realstate.habitar.domain.converters.StateObjectConverter;
 import com.realstate.habitar.domain.enums.StatesObjects;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@ToString
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -25,6 +24,9 @@ public class DealRegistry {
     @Column(name = "deal_user_id")
     private String dealUserId;
 
+    @Column(name = "name_user")
+    private String nameUser;
+
     @Column(name = "pipeline_type",length = 100)
     private String pipelineType;
 
@@ -38,6 +40,10 @@ public class DealRegistry {
     private LocalDateTime closedAt;
 
     @Setter
-    @Column(columnDefinition = "TINYINT")
+    @Column(name = "state", columnDefinition = "TINYINT")
+    @Convert(converter = StateObjectConverter.class)
     private StatesObjects state;
+
+    @Column(name = "created")
+    private LocalDateTime created;
 }

@@ -21,10 +21,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 @Service
@@ -152,7 +152,7 @@ public class UserServiceImpl implements UserService, UserServiceBasicOperations 
     @Transactional
     public UserResponseDto changeRole(RoleChangeDto roleChangeDto) {
 
-       Optional<User> userOpt = userDaoPort.getUser(roleChangeDto.hubId());
+       Optional<User> userOpt = userDaoPort.getUserByHubId(roleChangeDto.hubId());
        User user = userOpt.orElseThrow();
 
        if (roleChangeDto.strOldRole().equalsIgnoreCase(roleChangeDto.strNewRole())){
@@ -193,7 +193,10 @@ public class UserServiceImpl implements UserService, UserServiceBasicOperations 
 
     @Override
     public Optional<User> findUserByHubId(String hubId) {
-        return userDaoPort.getUser(hubId);
+        if (hubId==null){
+            throw new InvalidParameterException("El hubId es null");
+        }
+        return userDaoPort.getUserByHubId(hubId);
     }
 
     @Override

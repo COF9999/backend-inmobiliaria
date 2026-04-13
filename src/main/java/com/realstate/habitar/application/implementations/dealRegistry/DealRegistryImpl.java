@@ -34,9 +34,10 @@ public class DealRegistryImpl implements DealRegistryService {
 
     @Override
     public boolean findNotIsPartiallyRegister(String keyDealRegister) {
-        Set<Byte> includeValues = StatesObjects.getSetpartiallyNotRegister();
+        Set<StatesObjects> includeValues = StatesObjects.getSetpartiallyNotRegister();
         return dealRegistryRepository.findNotIsPartiallyRegister(keyDealRegister,includeValues);
     }
+
 
     @Transactional
     public List<DealRegisterDto> selectDealsRegister(Byte state){
@@ -48,7 +49,7 @@ public class DealRegistryImpl implements DealRegistryService {
 
 
     private void succesfullyDealRegister(DealRegistry dealRegistry,DealMasterBifurcationRecord dealMasterBifurcationRecord){
-
+        dealRegistry.setState(dealMasterBifurcationRecord.statesObjects());
     }
 
 
@@ -78,6 +79,7 @@ public class DealRegistryImpl implements DealRegistryService {
     @Override
     public DealRegisterDto convertTo(DealRegistry dealRegistry) {
         return new DealRegisterDto(dealRegistry.getDealUserId(),
+                dealRegistry.getNameUser(),
                 dealRegistry.getPipelineType(),
                 dealRegistry.getHubId(),
                 dealRegistry.getAmount(),

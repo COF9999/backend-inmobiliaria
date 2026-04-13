@@ -1,7 +1,4 @@
 package com.realstate.habitar.domain.baselogic;
-import com.realstate.habitar.domain.baselogic.interfaces.DetailVisitorSales;
-import com.realstate.habitar.domain.dtos.funnelsDtos.sales.DetailPaymentFunnel;
-import com.realstate.habitar.domain.dtos.funnelsDtos.sales.Resume;
 import com.realstate.habitar.domain.dtos.sales.SalesToAppRecord;
 import com.realstate.habitar.domain.dtos.sales.SalesToDomainRecord;
 import com.realstate.habitar.infraestructure.classes.model.SalesCommissionScale;

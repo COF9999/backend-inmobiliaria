@@ -25,23 +25,33 @@ public enum StatesObjects {
         return state;
     }
 
-
-    private static final Set<Byte> SetpartiallyNotRegister = Arrays.stream(values())
-            .filter(statesObjects -> Objects.equals(statesObjects.state, NEUTRO.getState()) || Objects.equals(statesObjects.state,CANCEL.getState()))
-            .map(StatesObjects::getState)
-            .collect(Collectors.toUnmodifiableSet());
-
-
+    private static final Set<StatesObjects> SetpartiallyNotRegister;
 
     private static final Map<Byte,StatesObjects> mapStateObjects = new HashMap<>();
 
+    static {
+        for (StatesObjects s:values()) mapStateObjects.put(s.state,s);
+
+        SetpartiallyNotRegister = Arrays.stream(values())
+                .filter(statesObjects -> Objects.equals(statesObjects.state, NEUTRO.getState()) || Objects.equals(statesObjects.state,CANCEL.getState()))
+                .collect(Collectors.toUnmodifiableSet());
+    }
+
     @JsonCreator
-    public static StatesObjects getStateFromMap(Byte state){
-       StatesObjects statesObjects = mapStateObjects.get(state);
-       if (statesObjects==null){
-           throw new IllegalArgumentException("Value of state invalid");
-       }
-       return statesObjects;
+    public static StatesObjects fromValue(Object value) {
+        if (value == null) return null;
+
+        if (value instanceof Number num) {
+            // Forzamos a byte SIEMPRE para asegurar match en el Map<Byte, ...>
+            byte b = num.byteValue();
+            StatesObjects res = mapStateObjects.get(b);
+            if (res == null) throw new IllegalArgumentException("No hay Enum para el byte: " + b);
+            return res;
+        }
+        if (value instanceof String str) {
+            return StatesObjects.valueOf(str.toUpperCase());
+        }
+        throw new IllegalArgumentException("Valor de estado inválido: " + value);
     }
 
     public boolean isValidTransition(StatesObjects newStateObject){
@@ -54,14 +64,10 @@ public enum StatesObjects {
         };
     }
 
-    public static Set<Byte> getSetpartiallyNotRegister(){
+    public static Set<StatesObjects> getSetpartiallyNotRegister(){
         return StatesObjects.SetpartiallyNotRegister;
     }
 
 
 
-
-    static {
-        for (StatesObjects s:values()) mapStateObjects.put(s.state,s);
-    }
 }

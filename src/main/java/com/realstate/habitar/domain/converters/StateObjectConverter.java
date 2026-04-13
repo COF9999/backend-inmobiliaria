@@ -14,6 +14,6 @@ public class StateObjectConverter implements AttributeConverter<StatesObjects,By
 
     @Override
     public StatesObjects convertToEntityAttribute(Byte aByte) {
-        return (aByte == null) ? null : StatesObjects.getStateFromMap(aByte);
+        return (aByte == null) ? null : StatesObjects.fromValue(aByte);
     }
 }

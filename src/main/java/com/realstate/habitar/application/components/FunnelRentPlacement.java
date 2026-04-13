@@ -18,14 +18,12 @@ public class FunnelRentPlacement implements PipelineHandler {
     }
 
     @Override
-    public ResultDto handle(Map<String, List<HubspotDealDtoApp>> listDeals, String typeMethodFunnel) {
-        //handleRentPlacement(dealsByOwner);
+    public ResultDto handle(String candidateMixId, Map<String, List<HubspotDealDtoApp>> listDeals, String typeMethodFunnel) {
         return null;
     }
 
 
-
-    private void handleRentPlacement(Map<String,List<HubspotDealDtoApp>> listDeals) {
+    private void handleRentPlacement(String candidateMixId,Map<String,List<HubspotDealDtoApp>> listDeals) {
         System.out.println("FUNNELRENT-> ");
         BigDecimal bigDecimal = new BigDecimal("134");
         String owner = "";

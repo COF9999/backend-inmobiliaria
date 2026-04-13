@@ -3,10 +3,11 @@ package com.realstate.habitar.application.implementations.commands;
 import com.realstate.habitar.application.usecases.dealRegistry.DealRegistryService;
 import com.realstate.habitar.domain.dtos.hubspot.DealMasterBifurcationRecord;
 import com.realstate.habitar.domain.dtos.hubspot.HubspotDealDtoApp;
+import com.realstate.habitar.domain.enums.HubspotEnum;
 import com.realstate.habitar.domain.enums.StatesObjects;
+import com.realstate.habitar.domain.rules.CronoRules;
 import com.realstate.habitar.global.domain.ports.DaoCrudPort;
 import com.realstate.habitar.infraestructure.adapters.interfaces.hubspot.HspotClientRepository;
-import com.realstate.habitar.infraestructure.advicers.exceptions.ResourceNotFound;
 import com.realstate.habitar.infraestructure.classes.model.DealRegistry;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +35,7 @@ public class HubSpotDealRegistry {
 
     @Transactional
     public void manipulateCreationDealRegistry(DealMasterBifurcationRecord dealMasterBifurcationRecord){
-        HubspotDealDtoApp hubspotDealDtoApp = hspotClientRepository.findDealByPrincipalInfo(dealMasterBifurcationRecord);
+        HubspotDealDtoApp hubspotDealDtoApp = hspotClientRepository.findDealByPrincipalInfo(dealMasterBifurcationRecord::dealId, HubspotEnum.PropertiesHubspot::getListCommonProperties);
 
         String dealMixHubId = hubspotDealDtoApp.id() + hubspotDealDtoApp.ownerId();
 
@@ -51,19 +52,20 @@ public class HubSpotDealRegistry {
     }
 
     private void createDealRegister(HubspotDealDtoApp hubspotDealDtoApp){
-        LocalDateTime closeat= OffsetDateTime
-                .parse(hubspotDealDtoApp.properties().get("closeat"))
-                .withOffsetSameInstant(ZoneOffset.ofHours(-5))
-                .toLocalDateTime();
-
+        System.out.println(hubspotDealDtoApp.toString());
+        LocalDateTime closeat= CronoRules.stringToDateWithZone(hubspotDealDtoApp.properties().get(HubspotEnum.PropertiesHubspot.CLOSEDATE.getValue()));
+        LocalDateTime created = CronoRules.currentLocalDatime();
         DealRegistry dealRegistry = new DealRegistry(
-                null,
-                hubspotDealDtoApp.id()+"-"+hubspotDealDtoApp.ownerId(),
-                hubspotDealDtoApp.pipelineType(),
-                Long.parseLong(hubspotDealDtoApp.ownerId())
-                ,new BigDecimal(hubspotDealDtoApp.properties().get("amount"))
-                ,closeat ,
-                StatesObjects.OPEN);
+            null,
+            hubspotDealDtoApp.id()+"-"+hubspotDealDtoApp.ownerId(),
+            hubspotDealDtoApp.nameUser(),
+            hubspotDealDtoApp.pipelineType(),
+            Long.parseLong(hubspotDealDtoApp.ownerId())
+            ,new BigDecimal(hubspotDealDtoApp.properties().get("amount"))
+            ,closeat ,
+            StatesObjects.OPEN,
+            created
+        );
 
         dealRegistryDaoCrudPort.create(dealRegistry);
     }

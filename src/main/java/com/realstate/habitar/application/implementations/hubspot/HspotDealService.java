@@ -1,4 +1,5 @@
 package com.realstate.habitar.application.implementations.hubspot;
+import com.realstate.habitar.application.implementations.util.UtilMethods;
 import com.realstate.habitar.application.usecases.dealRegistry.DealRegistryService;
 import com.realstate.habitar.domain.dispactchers.PipelineHandler;
 import com.realstate.habitar.domain.dispactchers.PipelineType;
@@ -7,6 +8,7 @@ import com.realstate.habitar.domain.dtos.funnelsDtos.ResultDto;
 import com.realstate.habitar.domain.dtos.hubspot.DealMasterBifurcationRecord;
 import com.realstate.habitar.domain.dtos.hubspot.HubspotDealDtoApp;
 import com.realstate.habitar.domain.dtos.sales.LiquidationTimeRecord;
+import com.realstate.habitar.domain.enums.HubspotEnum;
 import com.realstate.habitar.domain.hubspot.ObjectHubSpot;
 import com.realstate.habitar.domain.hubspot.Operators;
 import com.realstate.habitar.domain.interfaces.Execute;
@@ -35,10 +37,17 @@ public class HspotDealService {
         this.dealRegistryService = dealRegistryService;
     }
 
+    // cambiar a private
+    public HubspotDealDtoApp findDealInHubspot(String dealId, HubspotEnum hubspotEnum){
+        return hubspotClientRepository.findDealByPrincipalInfo(
+                ()-> UtilMethods.extractCorrectDealId(dealId),
+                hubspotEnum::extractProperties
+        );
+    }
 
     @Transactional
     public List<ResultDto> liquidateOnlyDeal(DealMasterBifurcationRecord dealMasterBifurcationRecord){
-        HubspotDealDtoApp hubspotDealDtoApp = hubspotClientRepository.findDealByPrincipalInfo(dealMasterBifurcationRecord);
+        HubspotDealDtoApp hubspotDealDtoApp = findDealInHubspot(dealMasterBifurcationRecord.dealId(),dealMasterBifurcationRecord.hubspotEnum());
 
         List<HubspotDealDtoApp> listDeals = List.of(hubspotDealDtoApp);
 
@@ -50,10 +59,8 @@ public class HspotDealService {
             processCloseDeal(pipeline, listDealsByOwner, (p, list) -> {
                 PipelineHandler handler = getPipelineHandler(p);
                 String typeMehod = dealMasterBifurcationRecord.typeMethod();
-                if (!TypeMethodFunnel.isIncludeMethod(pipeline,typeMehod)){
-                    ThrowableActions.launchRuntimeExeption(()-> new IllegalArgumentException("Type-method-not exists"));
-                };
-                ResultDto resultDto = handler.handle(listDealsByOwner,typeMehod);
+                TypeMethodFunnel.isIncludeMethod(pipeline,typeMehod);
+                ResultDto resultDto = handler.handle(dealMasterBifurcationRecord.dealId(),listDealsByOwner,typeMehod);
                 resultDtoList.add(resultDto);
             });
         });

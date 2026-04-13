@@ -10,6 +10,7 @@ public interface PipelineHandler {
 
     PipelineType pipelineKey();
 
-    ResultDto handle(Map<String, List<HubspotDealDtoApp>> listDeals,
+    ResultDto handle(String candidateMixId,
+                     Map<String, List<HubspotDealDtoApp>> listDeals,
                      String typeMethodFunnel);
 }

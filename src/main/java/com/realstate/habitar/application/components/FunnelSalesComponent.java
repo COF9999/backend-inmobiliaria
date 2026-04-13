@@ -2,9 +2,6 @@ package com.realstate.habitar.application.components;
 
 import com.realstate.habitar.application.components.helpers.sales.SalesAsync;
 import com.realstate.habitar.application.components.helpers.sales.SalesHelper;
-import com.realstate.habitar.application.components.helpers.sales.SalesUtilMethods;
-import com.realstate.habitar.application.usecases.hubspot.HubspotCommand;
-import com.realstate.habitar.application.usecases.user.UserService;
 import com.realstate.habitar.application.usecases.user.UserServiceBasicOperations;
 import com.realstate.habitar.domain.baselogic.FunnelSales;
 import com.realstate.habitar.domain.dispactchers.PipelineHandler;
@@ -18,16 +15,11 @@ import com.realstate.habitar.domain.dtos.hubspot.CalculateOwnerLiquidationRecord
 import com.realstate.habitar.domain.dtos.hubspot.HubspotDealDtoApp;
 import com.realstate.habitar.domain.dtos.sales.SalesToAppRecord;
 import com.realstate.habitar.domain.dtos.sales.SalesToDomainRecord;
-import com.realstate.habitar.domain.rules.ExportRules;
 import com.realstate.habitar.infraestructure.adapters.interfaces.salesCommission.SalesCommissionScaleRepository;
-import com.realstate.habitar.infraestructure.adapters.interfaces.userLiquidation.UserLiquidationRepository;
 import com.realstate.habitar.infraestructure.config.data.GlobalVariablesCache;
 import com.realstate.habitar.infraestructure.classes.model.SalesCommissionScale;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import java.io.BufferedWriter;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.BiFunction;
@@ -63,12 +55,9 @@ public class FunnelSalesComponent implements PipelineHandler {
     public FunnelSalesComponent(
                                 SalesCommissionScaleRepository salesCommissionScaleRepository,
                                 FunnelSales funnelSales,
-                                UserLiquidationRepository userLiquidationRepository,
                              //   DaoCrudPort<ProcessedDeal> processedDealDaoCrudPort,
                                 GlobalVariablesCache globalVariablesCache,
                                 UserServiceBasicOperations userServiceBasicOperations,
-                                HubspotCommand hubspotCommands,
-                                UserService userService,
                                 SalesHelper salesHelper,
                                 SalesAsync salesAsync
                                ){
@@ -87,7 +76,7 @@ public class FunnelSalesComponent implements PipelineHandler {
     }
 
     @Override
-    public ResultDto handle(Map<String, List<HubspotDealDtoApp>> listDeals, String typeMethodFunnel) {
+    public ResultDto handle(String candidateMixId,Map<String, List<HubspotDealDtoApp>> listDeals, String typeMethodFunnel) {
         return switch (typeMethodFunnel){
             case "INFO"-> new ResultDto("PROCESSED",generateReport(listDeals,"PARTIAL"));
             case "LIQUIDATE" -> {

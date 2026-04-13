@@ -47,21 +47,22 @@ public class DealRegistryAdapter implements DaoCrudPort<DealRegistry>,DealRegist
 
     @Override
     @Transactional(readOnly = true)
-    public boolean findNotIsPartiallyRegister(String idDealRegistry,Set<Byte> includeValues) {
-
-
-        Long count = entityManager.createQuery("SELECT COUNT(d) FROM DealRegistry d WHERE d.id = :key and d.state IN :includevalues", Long.class)
+    public boolean findNotIsPartiallyRegister(String idDealRegistry,Set<StatesObjects> includeValues) {
+        Long count = entityManager.createQuery("SELECT COUNT(d) FROM DealRegistry d WHERE d.dealUserId = :key and d.state NOT IN :includevalues", Long.class)
                 .setParameter("key", idDealRegistry)
-                .setParameter("includevalues",includeValues)
+                .setParameter("includevalues", includeValues)
                 .getSingleResult();
+
         return count == 0;
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<DealRegistry> selectDealsRegister(Byte state) {
+        StatesObjects stateEnum = StatesObjects.fromValue(state);
+
         return entityManager.createQuery("SELECT d FROM DealRegistry d WHERE d.state = :state",DealRegistry.class)
-                .setParameter("state",state)
+                .setParameter("state",stateEnum)
                 .getResultList();
     }
 
@@ -69,7 +70,8 @@ public class DealRegistryAdapter implements DaoCrudPort<DealRegistry>,DealRegist
     public Optional<DealRegistry> findByDealUserId(String dealUserId) {
         return entityManager.createQuery("SELECT d FROM DealRegistry d where d.dealUserId = :dealUserId",DealRegistry.class)
                 .setParameter("dealUserId",dealUserId)
-                .getResultStream()
+                .getResultList()
+                .stream()
                 .findFirst();
 
     }

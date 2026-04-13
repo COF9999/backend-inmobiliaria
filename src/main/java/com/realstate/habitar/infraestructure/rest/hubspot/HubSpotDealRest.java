@@ -4,7 +4,9 @@ import com.realstate.habitar.application.implementations.commands.HubSpotDealReg
 import com.realstate.habitar.application.implementations.hubspot.HspotDealService;
 import com.realstate.habitar.domain.dtos.hubspot.DealMasterBifurcationRecord;
 import com.realstate.habitar.domain.dtos.hubspot.HubspotDealDtoApp;
+import com.realstate.habitar.domain.dtos.response.ResponseDto;
 import com.realstate.habitar.domain.dtos.sales.LiquidationTimeRecord;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -35,11 +37,11 @@ public class HubSpotDealRest {
         return ResponseEntity.ok(hspotDealEventService.getDealsHubspot(liquidationTimeRecord));
     }
 
-    @PostMapping("/liquidate-select-deal")
-    public ResponseEntity<Void> liquidateSelectDeal(@RequestBody DealMasterBifurcationRecord hubSpotDealKeyRecord)  {
+    @PostMapping("/action-deal")
+    public ResponseEntity<ResponseDto> liquidateSelectDeal(@RequestBody DealMasterBifurcationRecord hubSpotDealKeyRecord)  {
         hspotDealEventService.liquidateOnlyDeal(hubSpotDealKeyRecord);
         System.out.println("---------------------------------BIEN");
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(new ResponseDto("ok"));
     }
 
     @PostMapping("/report-date")
