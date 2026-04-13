@@ -1,7 +1,6 @@
 package com.realstate.habitar.domain.dispactchers;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -23,12 +22,30 @@ public enum PipelineType {
         this.dealStages = dealStages;
     }
 
+    private static final Map<String, String> LOOKUP_MAP;
 
-    private static final Map<String, String> LOOKUP_MAP = Arrays.stream(values())
-            .collect(Collectors.toMap(PipelineType::getPipelineKey, PipelineType::getFieldName));
+    private static final Map<String,String> INVERSE_LOOKUP;
+
+    private static final Map<String,PipelineType> pipelineTypeMap;
+
+    static {
+        LOOKUP_MAP = Arrays.stream(values())
+                .collect(Collectors.toMap(PipelineType::getPipelineKey, PipelineType::getFieldName));
+
+        INVERSE_LOOKUP = Arrays.stream(values())
+                .collect(Collectors.toMap(PipelineType::getFieldName, PipelineType::getPipelineKey));
+
+        pipelineTypeMap = Arrays.stream(values())
+                .collect(Collectors.toMap(PipelineType::getFieldName, p->p));
+    }
+
 
     public static String getFieldNameByMap(String pipelineKey){
         return LOOKUP_MAP.get(pipelineKey);
+    }
+
+    public static String pipelineKeyByFieldName(String fieldName){
+        return INVERSE_LOOKUP.get(fieldName);
     }
 
     public String getPipelineKey(){
@@ -44,12 +61,7 @@ public enum PipelineType {
     }
 
     public static PipelineType findInternalValuePipeline(String value){
-        return Arrays.stream(values())
-                .filter(k-> k.pipelineKey.equalsIgnoreCase(value))
-                .findFirst()
-                .orElseThrow(()->
-                        new IllegalArgumentException("Pipeline not found")
-                );
+        return pipelineTypeMap.get(value);
     }
 
 

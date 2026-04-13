@@ -1,17 +1,19 @@
 package com.realstate.habitar.application.implementations.hubspot;
-import com.realstate.habitar.application.usecases.user.UserServiceBasicOperations;
+import com.realstate.habitar.application.implementations.util.UtilMethods;
+import com.realstate.habitar.application.usecases.dealRegistry.DealRegistryService;
 import com.realstate.habitar.domain.dispactchers.PipelineHandler;
 import com.realstate.habitar.domain.dispactchers.PipelineType;
 import com.realstate.habitar.domain.dispactchers.TypeMethodFunnel;
-import com.realstate.habitar.domain.dtos.hubspot.HubSpotDealKeyRecord;
+import com.realstate.habitar.domain.dtos.funnelsDtos.ResultDto;
+import com.realstate.habitar.domain.dtos.hubspot.DealMasterBifurcationRecord;
 import com.realstate.habitar.domain.dtos.hubspot.HubspotDealDtoApp;
 import com.realstate.habitar.domain.dtos.sales.LiquidationTimeRecord;
+import com.realstate.habitar.domain.enums.HubspotEnum;
 import com.realstate.habitar.domain.hubspot.ObjectHubSpot;
 import com.realstate.habitar.domain.hubspot.Operators;
 import com.realstate.habitar.domain.interfaces.Execute;
 import com.realstate.habitar.domain.rules.CronoRules;
 import com.realstate.habitar.infraestructure.adapters.interfaces.hubspot.HspotClientRepository;
-import com.realstate.habitar.infraestructure.adapters.interfaces.processDeal.ProcessedDealRepository;
 import com.realstate.habitar.utils.ThrowableActions;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -25,46 +27,45 @@ public class HspotDealService {
 
     private final HspotClientRepository hubspotClientRepository;
 
-    private final ProcessedDealRepository processedDealRepository;
-
-    private final UserServiceBasicOperations userServiceBasicOperations;
+    private final DealRegistryService dealRegistryService;
 
     public HspotDealService(PipelineHandlerFactory handlerFactory,
                             HspotClientRepository hubspotClientRepository,
-                            ProcessedDealRepository processedDealRepository,
-                            UserServiceBasicOperations userServiceBasicOperations){
+                            DealRegistryService dealRegistryService){
         this.handlerFactory = handlerFactory;
         this.hubspotClientRepository = hubspotClientRepository;
-        this.processedDealRepository = processedDealRepository;
-        this.userServiceBasicOperations = userServiceBasicOperations;
+        this.dealRegistryService = dealRegistryService;
     }
 
+    // cambiar a private
+    public HubspotDealDtoApp findDealInHubspot(String dealId, HubspotEnum hubspotEnum){
+        return hubspotClientRepository.findDealByPrincipalInfo(
+                ()-> UtilMethods.extractCorrectDealId(dealId),
+                hubspotEnum::extractProperties
+        );
+    }
 
     @Transactional
-    public void liquidateOnlyDeal(HubSpotDealKeyRecord hubSpotDealKeyRecord){
-        HubspotDealDtoApp hubspotDealDtoApp = hubspotClientRepository.findDealByPrincipalInfo(hubSpotDealKeyRecord);
-
-        boolean isUnique = findNotIsProcessed(hubspotDealDtoApp.id()+"-"+hubspotDealDtoApp.ownerId());
-
-        if (isUnique == false ){
-            throw new IllegalArgumentException("Deal ya esta procesado");
-        }
+    public List<ResultDto> liquidateOnlyDeal(DealMasterBifurcationRecord dealMasterBifurcationRecord){
+        HubspotDealDtoApp hubspotDealDtoApp = findDealInHubspot(dealMasterBifurcationRecord.dealId(),dealMasterBifurcationRecord.hubspotEnum());
 
         List<HubspotDealDtoApp> listDeals = List.of(hubspotDealDtoApp);
 
         Map<String,Map<String,List<HubspotDealDtoApp>>> grouped = grouped(listDeals);
 
+        List<ResultDto> resultDtoList = new ArrayList<>();
 
         grouped.forEach((pipeline, listDealsByOwner) -> {
             processCloseDeal(pipeline, listDealsByOwner, (p, list) -> {
                 PipelineHandler handler = getPipelineHandler(p);
-                String typeMehod = hubSpotDealKeyRecord.type();
-                if (!TypeMethodFunnel.isCludeMethod(pipeline,typeMehod)){
-                    ThrowableActions.launchRuntimeExeption(()-> new IllegalArgumentException("Type-method-not exists"));
-                };
-                handler.handle(listDealsByOwner,typeMehod);
+                String typeMehod = dealMasterBifurcationRecord.typeMethod();
+                TypeMethodFunnel.isIncludeMethod(pipeline,typeMehod);
+                ResultDto resultDto = handler.handle(dealMasterBifurcationRecord.dealId(),listDealsByOwner,typeMehod);
+                resultDtoList.add(resultDto);
             });
         });
+
+        return resultDtoList;
     }
 
     @Transactional
@@ -92,7 +93,7 @@ public class HspotDealService {
                 .map(p-> getDataFromHubSpot(p,liquidationTimeRecord))
                 .peek(a-> System.out.println("****C "))
                 .flatMap(List::stream)
-                .filter(deal-> findNotIsProcessed(deal.id()+"-"+deal.ownerId()))
+                .filter(deal-> findNotIsPartiallyRegister(deal.id()+"-"+deal.ownerId()))
                 .toList();
 
         list.forEach(System.out::println);
@@ -138,8 +139,8 @@ public class HspotDealService {
                 ));
     }
 
-    private boolean findNotIsProcessed(String key){
-        return processedDealRepository.notIsProcessed(key);
+    private boolean findNotIsPartiallyRegister(String key){
+        return dealRegistryService.findNotIsPartiallyRegister(key);
     }
 
     private List<Map<String,Object>> buildStuctureConsultHubSpot(boolean isDefault,

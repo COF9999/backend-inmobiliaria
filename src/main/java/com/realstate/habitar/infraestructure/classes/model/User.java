@@ -4,7 +4,6 @@ package com.realstate.habitar.infraestructure.classes.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,6 +26,7 @@ public class User {
     @Column(unique = true, nullable = false)
     private String username;
 
+    @Column(length = 20)
     private String identification;
 
     @Version
@@ -37,7 +37,7 @@ public class User {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
-    @Column(name = "hub_id")
+    @Column(name = "hub_id",length = 20)
     private String hubId;
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -57,7 +57,6 @@ public class User {
 
     @Column(name = "is_active")
     private Boolean isActive;
-
 
     public void replaceRol(Role oldRol,Role newRole){
         if (this.getRoles().remove(oldRol)){

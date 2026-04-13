@@ -1,7 +1,7 @@
 package com.realstate.habitar.infraestructure.rest.model;
 
 import com.realstate.habitar.application.usecases.globalVariables.GlobalVariablesService;
-import com.realstate.habitar.domain.dtos.globaVariables.GlobalVariablesDto;
+import com.realstate.habitar.domain.dtos.globaVariables.ConfigVariablesDto;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,7 +19,7 @@ public class GlobalVariablesRest {
     }
 
     @GetMapping("/")
-    public List<GlobalVariablesDto> getAllVariables(){
+    public List<ConfigVariablesDto> getAllVariables(){
         return globalVariablesService.getListGlobalVariables();
     }
 }

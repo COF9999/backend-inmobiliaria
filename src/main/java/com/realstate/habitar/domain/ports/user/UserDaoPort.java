@@ -11,7 +11,7 @@ public interface UserDaoPort {
 
     void activeDeleted(Long id);
 
-    Optional<User> getUser(String hubId);
+    Optional<User> getUserByHubId(String hubId);
 
     boolean isUserActive(String email);
 

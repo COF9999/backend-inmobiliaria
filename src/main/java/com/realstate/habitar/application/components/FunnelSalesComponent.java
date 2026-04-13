@@ -1,36 +1,31 @@
 package com.realstate.habitar.application.components;
 
-import com.realstate.habitar.application.usecases.components.SalesComponentInterface;
-import com.realstate.habitar.application.usecases.hubspot.HubspotCommand;
-import com.realstate.habitar.application.usecases.user.UserService;
+import com.realstate.habitar.application.components.helpers.sales.SalesAsync;
+import com.realstate.habitar.application.components.helpers.sales.SalesHelper;
+import com.realstate.habitar.application.usecases.user.UserServiceBasicOperations;
 import com.realstate.habitar.domain.baselogic.FunnelSales;
 import com.realstate.habitar.domain.dispactchers.PipelineHandler;
 import com.realstate.habitar.domain.dispactchers.PipelineType;
+import com.realstate.habitar.domain.dtos.funnelsDtos.*;
+import com.realstate.habitar.domain.dtos.funnelsDtos.sales.DetailPaymentFunnel;
+import com.realstate.habitar.domain.dtos.funnelsDtos.sales.DetailResumeAbstract;
+import com.realstate.habitar.domain.dtos.funnelsDtos.sales.DetailUserPayment;
+import com.realstate.habitar.domain.dtos.funnelsDtos.sales.Resume;
 import com.realstate.habitar.domain.dtos.hubspot.CalculateOwnerLiquidationRecord;
 import com.realstate.habitar.domain.dtos.hubspot.HubspotDealDtoApp;
-import com.realstate.habitar.domain.dtos.sales.LiquidationMonthReportRecord;
 import com.realstate.habitar.domain.dtos.sales.SalesToAppRecord;
 import com.realstate.habitar.domain.dtos.sales.SalesToDomainRecord;
-import com.realstate.habitar.domain.dtos.user.UserRequestDto;
-import com.realstate.habitar.domain.ports.user.UserDaoPort;
-import com.realstate.habitar.domain.rules.ExportRules;
-import com.realstate.habitar.global.domain.ports.DaoCrudPort;
-import com.realstate.habitar.infraestructure.classes.model.Role;
-import com.realstate.habitar.infraestructure.classes.model.User;
 import com.realstate.habitar.infraestructure.adapters.interfaces.salesCommission.SalesCommissionScaleRepository;
-import com.realstate.habitar.infraestructure.adapters.interfaces.userLiquidation.UserLiquidationRepository;
 import com.realstate.habitar.infraestructure.config.data.GlobalVariablesCache;
-import com.realstate.habitar.infraestructure.classes.model.ProcessedDeal;
 import com.realstate.habitar.infraestructure.classes.model.SalesCommissionScale;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.function.BiFunction;
 
 @Component
-public class FunnelSalesComponent implements PipelineHandler, SalesComponentInterface {
+public class FunnelSalesComponent implements PipelineHandler {
 
     @Value("${config.keyowneraccount}")
     private String keyOwnerAccount;
@@ -46,36 +41,34 @@ public class FunnelSalesComponent implements PipelineHandler, SalesComponentInte
 
     private final FunnelSales funnelSales;
 
-    private final UserLiquidationRepository userLiquidationRepository;
-
-    private final DaoCrudPort<ProcessedDeal> processedDealDaoCrudPort;
+   // private final DaoCrudPort<ProcessedDeal> processedDealDaoCrudPort;
 
     private final GlobalVariablesCache globalVariablesCache;
 
-    private final UserDaoPort userUserDaoPort;
+    private final UserServiceBasicOperations userServiceBasicOperations;
 
-    private final HubspotCommand hubspotCommands;
+    private final SalesHelper salesHelper;
 
-    private final UserService userService;
+    private final SalesAsync salesAsync;
+
 
     public FunnelSalesComponent(
                                 SalesCommissionScaleRepository salesCommissionScaleRepository,
                                 FunnelSales funnelSales,
-                                UserLiquidationRepository userLiquidationRepository,
-                                DaoCrudPort<ProcessedDeal> processedDealDaoCrudPort,
+                             //   DaoCrudPort<ProcessedDeal> processedDealDaoCrudPort,
                                 GlobalVariablesCache globalVariablesCache,
-                                UserDaoPort userUserDaoPort,
-                                HubspotCommand hubspotCommands,
-                                UserService userService
+                                UserServiceBasicOperations userServiceBasicOperations,
+                                SalesHelper salesHelper,
+                                SalesAsync salesAsync
                                ){
         this.salesCommissionScaleRepository = salesCommissionScaleRepository;
         this.funnelSales = funnelSales;
-        this.userLiquidationRepository = userLiquidationRepository;
-        this.processedDealDaoCrudPort = processedDealDaoCrudPort;
+
+      //  this.processedDealDaoCrudPort = processedDealDaoCrudPort;
         this.globalVariablesCache = globalVariablesCache;
-        this.userUserDaoPort = userUserDaoPort;
-        this.hubspotCommands = hubspotCommands;
-        this.userService = userService;
+        this.userServiceBasicOperations = userServiceBasicOperations;
+        this.salesHelper = salesHelper;
+        this.salesAsync = salesAsync;
     }
 
     public PipelineType pipelineKey() {
@@ -83,20 +76,32 @@ public class FunnelSalesComponent implements PipelineHandler, SalesComponentInte
     }
 
     @Override
-    public void handle(Map<String, List<HubspotDealDtoApp>> listDeals, String typeMethodFunnel) {
-        System.out.println("Handle");
-        switch (typeMethodFunnel){
-            case "DEAL" -> generateLiquidationOneDeal(listDeals);
-            case "REPORT"->generateReport(listDeals);
-        }
-
+    public ResultDto handle(String candidateMixId,Map<String, List<HubspotDealDtoApp>> listDeals, String typeMethodFunnel) {
+        return switch (typeMethodFunnel){
+            case "INFO"-> new ResultDto("PROCESSED",generateReport(listDeals,"PARTIAL"));
+            case "LIQUIDATE" -> {
+                generateLiquidationOneDeal(listDeals);
+                yield new ResultDto("PROCESSED",null);
+            }
+            case "REPORT"->{
+                generateReport(listDeals,"COMPLETE");
+                yield new ResultDto("PROCESSED",null);
+            }
+            default -> new ResultDto("NOTMATCH",null);
+        };
     }
 
-    public void generateLiquidationOneDeal(Map<String, List<HubspotDealDtoApp>> listDeals){
+    private <T,W,R> void FrameReports(CalculateOwnerLiquidationRecord calculateOwnerLiquidationRecord,W w,BiFunction<T,W,R> biFunction){
+        for (Map.Entry<String, DetailResumeAbstract> mapOwnerLiquidation:calculateOwnerLiquidationRecord.resultOperation().entrySet()){
+            biFunction.apply((T) mapOwnerLiquidation,w);
+        }
+    }
+
+
+    private void generateLiquidationOneDeal(Map<String, List<HubspotDealDtoApp>> listDeals){
         try {
-            System.out.println("GENERATE -----");
             CalculateOwnerLiquidationRecord calculateOwnerLiquidationRecord = calculateOwnerLiquidation(listDeals);
-            updateAmount(calculateOwnerLiquidationRecord.resultOperation());
+            salesHelper.runClassVisitor(calculateOwnerLiquidationRecord.resultOperation());
             closeDealsAlreadyProccessed(calculateOwnerLiquidationRecord.dealsProccesed());
         }catch (Exception e){
             throw e;
@@ -104,23 +109,21 @@ public class FunnelSalesComponent implements PipelineHandler, SalesComponentInte
     }
 
 
-    public void generateReport(Map<String, List<HubspotDealDtoApp>> listDeals) {
+    private List<DetailResumeAbstract> generateReport(Map<String, List<HubspotDealDtoApp>> listDeals,String stage) {
         try {
             CalculateOwnerLiquidationRecord calculateOwnerLiquidationRecord = calculateOwnerLiquidation(listDeals);
-            List<LiquidationMonthReportRecord> monthReportRecordList = new ArrayList<>();
-            for (Map.Entry<String,BigDecimal> mapOwnerLiquidation:calculateOwnerLiquidationRecord.resultOperation().entrySet()){
-                Optional<User> userFound = userUserDaoPort.getUser(mapOwnerLiquidation.getKey());
-
-                System.out.println(mapOwnerLiquidation.getKey()+" %%%%% "+mapOwnerLiquidation.getValue());
-
-               if (userFound.isPresent()){
-                   User user = userFound.get();
-                   monthReportRecordList.add(new LiquidationMonthReportRecord(user.getName(),user.getHubId(),mapOwnerLiquidation.getValue()));
-               }else {
-                   monthReportRecordList.add(new LiquidationMonthReportRecord("Anonimo",mapOwnerLiquidation.getKey(),mapOwnerLiquidation.getValue()));
-               }
+            List<DetailResumeAbstract> detailResumeAbstractList = new ArrayList<>();
+            BiFunction<Map.Entry<String,DetailResumeAbstract>, List<DetailResumeAbstract>,Void> biFunction = (mapEntry, list)->{
+                list.add(mapEntry.getValue());
+                return null;
+            };
+            FrameReports(calculateOwnerLiquidationRecord,detailResumeAbstractList,biFunction);
+            if (stage.equalsIgnoreCase("PARTIAL")){
+                return detailResumeAbstractList;
+            }else if (stage.equalsIgnoreCase("COMPLETE")){
+                salesAsync.WriteInFile(pathToExport,detailResumeAbstractList);
             }
-            ExportRules.exportLiquidationReport(monthReportRecordList,pathToExport);
+            return null;
         }catch (Exception e){
             throw new IllegalArgumentException("Problem "+e.getMessage());
         }
@@ -134,8 +137,9 @@ public class FunnelSalesComponent implements PipelineHandler, SalesComponentInte
         System.out.println("FUNNELSALES-> ");
         BigDecimal acumAmountAgent = BigDecimal.ZERO;
         BigDecimal acumAmountCompany = BigDecimal.ZERO;
+        BigDecimal fullAcumulatorCompany = BigDecimal.ZERO;
         String owner = "";
-        Map<String,BigDecimal> resultOperation = new HashMap<>();
+        Map<String, DetailResumeAbstract> resultOperation = new HashMap<>();
         try {
             for (Map.Entry<String, List<HubspotDealDtoApp>> dealByOwner : listDeals.entrySet()) {
                 owner = dealByOwner.getKey();
@@ -143,17 +147,30 @@ public class FunnelSalesComponent implements PipelineHandler, SalesComponentInte
                     if (hubspotDealDtoApp.ownerId().equalsIgnoreCase(valueOwnerAccount)) {
                         SalesToAppRecord salesToAppRecord = funnelSales.operate(new SalesToDomainRecord(hubspotDealDtoApp, listSalesCommissionScales, valuePercentageSale, true));
                         acumAmountCompany = acumAmountCompany.add(salesToAppRecord.acumAmountCompany());
+                        fullAcumulatorCompany = fullAcumulatorCompany.add(salesToAppRecord.acumAmountCompany());
+                        resultOperation.put(valueOwnerAccount,new DetailPaymentFunnel(
+                                new DetailUserPayment("",valueOwnerAccount,acumAmountCompany,valuePercentageSale,salesToAppRecord.substractPercentage()),
+                                null)
+                        );
                     } else {
                         SalesToAppRecord salesToAppRecord = funnelSales.operate(new SalesToDomainRecord(hubspotDealDtoApp, listSalesCommissionScales, valuePercentageSale, false));
                         acumAmountAgent = acumAmountAgent.add(salesToAppRecord.acumAmountAgent());
                         acumAmountCompany = acumAmountCompany.add(salesToAppRecord.acumAmountCompany());
-                        resultOperation.put(owner, acumAmountAgent);
+
+                        resultOperation.put(owner,new DetailPaymentFunnel(
+                                new DetailUserPayment("",valueOwnerAccount,acumAmountCompany,valuePercentageSale,salesToAppRecord.substractPercentage()),
+                                new DetailUserPayment("",owner,acumAmountAgent,salesToAppRecord.operationPercentage(),salesToAppRecord.commisionPercentage())
+                        ));
                     }
                     dealsProccesed.add(hubspotDealDtoApp);
                 }
                 acumAmountAgent = BigDecimal.ZERO;
+                acumAmountCompany = BigDecimal.ZERO;
             }
-            resultOperation.put(valueOwnerAccount, acumAmountCompany);
+
+
+            Integer quantity = resultOperation.size();
+            resultOperation.put(valueOwnerAccount, new Resume("",valueOwnerAccount,fullAcumulatorCompany,quantity));
             return new CalculateOwnerLiquidationRecord(resultOperation,dealsProccesed);
         }catch (Exception e){
             throw e;
@@ -162,8 +179,9 @@ public class FunnelSalesComponent implements PipelineHandler, SalesComponentInte
 
     private void closeDealsAlreadyProccessed(Set<HubspotDealDtoApp> dealsProccesed) {
         for (HubspotDealDtoApp deal:dealsProccesed){
-            Long idUserLiquidator = userLiquidationRepository.getIdUserLiquidation(deal.ownerId());
-            ProcessedDeal processedDeal = new ProcessedDeal(
+           // Long idUserLiquidator = userLiquidationRepository.getIdUserLiquidation(deal.ownerId());
+
+           /* ProcessedDeal processedDeal = new ProcessedDeal(
                     deal.id()+"-"+deal.ownerId(),
                     deal.pipelineType(),
                     idUserLiquidator,
@@ -171,49 +189,11 @@ public class FunnelSalesComponent implements PipelineHandler, SalesComponentInte
                     OffsetDateTime.parse(deal.properties().get("closedate")).toLocalDateTime(),
                     LocalDateTime.now());
             processedDealDaoCrudPort.create(processedDeal);
+
+            */
         }
     }
 
-    private void updateAmount( Map<String,BigDecimal> resultOperation) {
-        String hubId = "";
-        BigDecimal acum = BigDecimal.ZERO;
-        for (Map.Entry<String, BigDecimal> map : resultOperation.entrySet()) {
-            hubId = map.getKey();
-            acum  = map.getValue();
-            if (userLiquidationRepository.isExistUserLiquidation(hubId)) {
-                userLiquidationRepository.addAmount(hubId, acum);
-            } else {
-                createUserIfExists(hubId);
-                userLiquidationRepository.addAmount(hubId,acum);
-            }
-        }
-    }
-
-    private void createUserIfExists(String hubId) {
-        Map<String, Object> activeOwner = hubspotCommands.findOwnerByHubId(hubId);
-
-        if (activeOwner != null) {
-            // todo crear usuario
-            boolean isActive = !((boolean) activeOwner.get("archived"));
-            String firstName = (String) activeOwner.get("firstName");
-            String username = firstName;
-            String name = firstName + " "+ ((String) activeOwner.get("lastName"));
-            String email = (String) activeOwner.get("email");
-            String identification = "123GENERIC";
-            Set<Role> setRoles = Set.of(new Role(null, "ROLE_USER"));
-            userService.create(new UserRequestDto(
-                    null,
-                    hubId,
-                    isActive,
-                    setRoles,
-                    name,
-                    username,
-                    email,
-                    identification,
-                    ""
-            ));
-        }
-    }
 
     private List<SalesCommissionScale> getAllSalesScales() {
         try {

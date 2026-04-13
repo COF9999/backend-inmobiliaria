@@ -42,7 +42,7 @@ public class UserEmanagerAdapter implements DaoCrudPort<User>, UserDaoPort {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<User> getUser(String hubId) {
+    public Optional<User> getUserByHubId(String hubId) {
         List<User> results = entityManager.createQuery(
                         "SELECT u FROM User u WHERE u.hubId = :hubId", User.class)
                 .setParameter("hubId", hubId)

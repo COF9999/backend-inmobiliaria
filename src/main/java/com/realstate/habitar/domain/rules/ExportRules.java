@@ -1,29 +1,28 @@
 package com.realstate.habitar.domain.rules;
 
-import com.realstate.habitar.domain.dtos.sales.LiquidationMonthReportRecord;
+import com.realstate.habitar.domain.dtos.funnelsDtos.sales.DetailPaymentFunnel;
+import com.realstate.habitar.domain.dtos.funnelsDtos.sales.DetailResumeAbstract;
+import com.realstate.habitar.domain.dtos.funnelsDtos.sales.DetailUserPayment;
+
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
+import java.util.function.BiFunction;
+
+
 
 public class ExportRules {
-    public static void exportLiquidationReport(List<LiquidationMonthReportRecord> monthReportRecordList,String path) throws IOException {
+    public static <T,R> void exportLiquidationReport(List<DetailResumeAbstract> detailResumeAbstract,
+                                                     String[] header,
+                                                     String path,
+                                                     BiFunction<T,List<DetailResumeAbstract>,Void> function) throws IOException {
         try(BufferedWriter writer= new BufferedWriter(new FileWriter(path))) {
-
-            writer.write("name-user,hub-id,amount");
+            String linesHeader = String.join(",",header);
+            writer.write(linesHeader);
             writer.newLine();
-
-            for (LiquidationMonthReportRecord record:monthReportRecordList){
-                String line = String.format("%s,%s,%s",
-                        record.nameUser(),
-                        record.hubId(),
-                        record.amount().toString()
-                );
-                writer.write(line);
-                writer.newLine();
-            }
-
+            function.apply((T) writer,detailResumeAbstract);
         } catch (IOException e) {
             throw e;
         }
