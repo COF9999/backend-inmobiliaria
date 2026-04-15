@@ -1,8 +1,10 @@
 package com.realstate.habitar.application.components;
 
+import com.realstate.habitar.application.components.helpers.sales.SalesHelper;
 import com.realstate.habitar.application.implementations.rentconfig.FunnelRentConfigImpl;
 import com.realstate.habitar.application.usecases.dealLiquidate.DealLiquidateService;
 import com.realstate.habitar.application.usecases.dealRegistry.DealRegistryService;
+import com.realstate.habitar.application.usecases.paymentRealized.PaymentRealizedService;
 import com.realstate.habitar.application.usecases.paymentplan.PaymentPlanService;
 import com.realstate.habitar.application.usecases.user.UserServiceBasicOperations;
 import com.realstate.habitar.domain.baselogic.FunnelRent;
@@ -18,15 +20,20 @@ import com.realstate.habitar.domain.enums.FunnelRentEnum;
 import com.realstate.habitar.domain.enums.HubspotEnum;
 import com.realstate.habitar.domain.enums.StatesObjects;
 import com.realstate.habitar.domain.rules.CronoRules;
+import com.realstate.habitar.global.domain.ports.DaoCrudPort;
+import com.realstate.habitar.infraestructure.advicers.exceptions.ResourceAlreadyExists;
 import com.realstate.habitar.infraestructure.advicers.exceptions.ResourceNotFound;
 import com.realstate.habitar.infraestructure.classes.model.DealLiquidate;
 import com.realstate.habitar.infraestructure.classes.model.PaymentPlan;
+import com.realstate.habitar.infraestructure.classes.model.PaymentRealized;
 import com.realstate.habitar.infraestructure.classes.model.User;
 import com.realstate.habitar.infraestructure.config.data.GlobalVariablesCache;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.BiFunction;
@@ -68,13 +75,20 @@ public class FunnelRentComponent implements PipelineHandler {
 
     private final PaymentPlanService paymentPlanService;
 
-    public FunnelRentComponent(FunnelRentConfigImpl funnelRentConfigImpl, GlobalVariablesCache globalVariablesCache, DealLiquidateService dealLiquidateService, DealRegistryService dealRegistryService, UserServiceBasicOperations userServiceBasicOperations, PaymentPlanService paymentPlanService) {
+    private final PaymentRealizedService paymentRealizedService;
+
+    private final SalesHelper salesHelper;
+
+
+    public FunnelRentComponent(FunnelRentConfigImpl funnelRentConfigImpl, GlobalVariablesCache globalVariablesCache, DealLiquidateService dealLiquidateService, DealRegistryService dealRegistryService, UserServiceBasicOperations userServiceBasicOperations, PaymentPlanService paymentPlanService, PaymentRealizedService paymentRealizedService, SalesHelper salesHelper) {
         this.funnelRentConfigImpl = funnelRentConfigImpl;
         this.globalVariablesCache = globalVariablesCache;
         this.dealLiquidateService = dealLiquidateService;
         this.dealRegistryService = dealRegistryService;
         this.userServiceBasicOperations = userServiceBasicOperations;
         this.paymentPlanService = paymentPlanService;
+        this.paymentRealizedService = paymentRealizedService;
+        this.salesHelper = salesHelper;
     }
 
     @Override
@@ -93,6 +107,26 @@ public class FunnelRentComponent implements PipelineHandler {
         };
     }
 
+    private BigDecimal commissionRent30(BigDecimal amountDeal){
+        BigDecimal percentage = new BigDecimal("0.10"); // 10%
+        return amountDeal.multiply(percentage).setScale(0, RoundingMode.DOWN);
+
+    }
+
+    @Transactional
+    public void liquidatePlanDeal(String uuid){
+          PaymentPlan paymentPlan = paymentPlanService.findByUuid(uuid);
+          if (paymentPlan.isPay()){
+              System.out.println("Ya esta pago");
+              throw new ResourceAlreadyExists("Ya esta pago");
+          }
+          User user = paymentPlan.getUser();
+          BigDecimal amountDeal = paymentPlan.getDealLiquidate().getDealRegistry().getAmount();
+          BigDecimal commission30calculated = commissionRent30(amountDeal);
+          paymentPlan.setPay(true);
+          paymentRealizedService.createPaymentRealized(new PaymentRealized(null,paymentPlan,CronoRules.currentLocalDatime()));
+          salesHelper.visit(new Resume(user.getName(),user.getHubId(),commission30calculated,0));
+    }
 
     private void generatePlanDeals(String candidateMixId,Map<String, List<HubspotDealDtoApp>> listDeals){
         try {
@@ -101,7 +135,6 @@ public class FunnelRentComponent implements PipelineHandler {
             throw e;
         }
     }
-
 
     private void calculateRoadPlan(String candidateMixId,Map<String,List<HubspotDealDtoApp>> listDeals) {
         Map<String,String> configMapRent = funnelRentConfigImpl.getListGlobalVariables();
@@ -269,7 +302,12 @@ public class FunnelRentComponent implements PipelineHandler {
             consecutiveMonth = (i == 0) ? baseDate.plusMonths(1): consecutiveMonth.plusMonths(1);
             endCurrentDate = (i==planContract.length -1) ? finalDateContract :CronoRules.adjustTo30(consecutiveMonth);
             userAdded = relateUsers(planContract,i,dealLiquidate,userCompany);
-            paymentPlan = new PaymentPlan(null,dealLiquidate,null,endCurrentDate,userAdded,restDays);
+            paymentPlan = PaymentPlan.builder()
+                    .dealLiquidate(dealLiquidate)
+                    .traceSecondDate(endCurrentDate)
+                    .user(userAdded)
+                    .restDays(0L)
+                    .build();
             paymentPlanList.add(paymentPlan);
         }
         return paymentPlanList;

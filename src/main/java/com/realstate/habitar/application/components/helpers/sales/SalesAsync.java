@@ -26,7 +26,7 @@ public class SalesAsync {
                         writer.write(String.format("%s",
                                 "Nombre-Agente","Hub-id","total-recaudo"
                         ));
-                        writer.write(resume.report(salesUtilMethods));
+                        writer.write(record.report(salesUtilMethods));
                         writer.newLine();
                     }else {
                         String row = String.format("%s",

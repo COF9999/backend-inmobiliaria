@@ -6,6 +6,7 @@ import com.realstate.habitar.domain.dtos.user.UserResponseDto;
 import com.realstate.habitar.infraestructure.classes.model.User;
 
 import java.util.List;
+import java.util.function.Function;
 
 public interface UserService {
     UserResponseDto search(Long id);
@@ -15,4 +16,5 @@ public interface UserService {
     UserResponseDto convertToDto(User user);
     List<UserResponseDto> getUserList();
     UserResponseDto changeRole(RoleChangeDto roleChangeDto);
+    <R> R converTo(User simpleUserDto, Function<User,R> function);
 }

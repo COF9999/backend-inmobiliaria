@@ -4,6 +4,7 @@ import com.realstate.habitar.application.usecases.role.RoleServiceBasicOperation
 import com.realstate.habitar.application.usecases.user.UserService;
 import com.realstate.habitar.application.usecases.user.UserServiceBasicOperations;
 import com.realstate.habitar.domain.dtos.user.RoleChangeDto;
+import com.realstate.habitar.domain.dtos.user.SimpleUserDto;
 import com.realstate.habitar.domain.dtos.user.UserRequestDto;
 import com.realstate.habitar.domain.dtos.user.UserResponseDto;
 import com.realstate.habitar.domain.ports.role.RolePort;
@@ -22,9 +23,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.security.InvalidParameterException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -186,6 +189,8 @@ public class UserServiceImpl implements UserService, UserServiceBasicOperations 
 
 
 
+
+
     @Override
     public void activeDelete(Long id) {
 
@@ -237,5 +242,8 @@ public class UserServiceImpl implements UserService, UserServiceBasicOperations 
         return new UserResponseDto(userRequestDto);
     }
 
-
+    @Override
+    public <R> R converTo(User user, Function<User, R> function) {
+        return function.apply(user);
+    }
 }

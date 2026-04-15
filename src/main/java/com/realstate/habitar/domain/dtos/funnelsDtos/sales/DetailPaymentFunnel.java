@@ -4,11 +4,13 @@ package com.realstate.habitar.domain.dtos.funnelsDtos.sales;
 import com.realstate.habitar.domain.baselogic.interfaces.DetailVisitorSales;
 import com.realstate.habitar.domain.baselogic.interfaces.VisitorExtractSales;
 import lombok.Getter;
+import lombok.ToString;
 
+@ToString
 @Getter
 public class DetailPaymentFunnel extends DetailResumeAbstract {
-    private DetailUserPayment detailOwnerPayment;
-    private DetailUserPayment detailAgentPayment;
+    private final DetailUserPayment detailOwnerPayment;
+    private final DetailUserPayment detailAgentPayment;
 
     public DetailPaymentFunnel(DetailUserPayment detailOwnerPayment, DetailUserPayment detailAgentPayment) {
         this.detailOwnerPayment = detailOwnerPayment;

@@ -2,6 +2,8 @@ package com.realstate.habitar.application.components;
 
 import com.realstate.habitar.application.components.helpers.sales.SalesAsync;
 import com.realstate.habitar.application.components.helpers.sales.SalesHelper;
+import com.realstate.habitar.application.usecases.dealLiquidate.DealLiquidateService;
+import com.realstate.habitar.application.usecases.dealRegistry.DealRegistryService;
 import com.realstate.habitar.application.usecases.user.UserServiceBasicOperations;
 import com.realstate.habitar.domain.baselogic.FunnelSales;
 import com.realstate.habitar.domain.dispactchers.PipelineHandler;
@@ -15,9 +17,14 @@ import com.realstate.habitar.domain.dtos.hubspot.CalculateOwnerLiquidationRecord
 import com.realstate.habitar.domain.dtos.hubspot.HubspotDealDtoApp;
 import com.realstate.habitar.domain.dtos.sales.SalesToAppRecord;
 import com.realstate.habitar.domain.dtos.sales.SalesToDomainRecord;
+import com.realstate.habitar.domain.enums.HubspotEnum;
+import com.realstate.habitar.domain.enums.StatesObjects;
 import com.realstate.habitar.infraestructure.adapters.interfaces.salesCommission.SalesCommissionScaleRepository;
+import com.realstate.habitar.infraestructure.classes.model.DealRegistry;
+import com.realstate.habitar.infraestructure.classes.model.User;
 import com.realstate.habitar.infraestructure.config.data.GlobalVariablesCache;
 import com.realstate.habitar.infraestructure.classes.model.SalesCommissionScale;
+import com.realstate.habitar.infraestructure.config.hubspot.HubspotProperties;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
@@ -51,24 +58,20 @@ public class FunnelSalesComponent implements PipelineHandler {
 
     private final SalesAsync salesAsync;
 
+    private final DealRegistryService dealRegistryService;
 
-    public FunnelSalesComponent(
-                                SalesCommissionScaleRepository salesCommissionScaleRepository,
-                                FunnelSales funnelSales,
-                             //   DaoCrudPort<ProcessedDeal> processedDealDaoCrudPort,
-                                GlobalVariablesCache globalVariablesCache,
-                                UserServiceBasicOperations userServiceBasicOperations,
-                                SalesHelper salesHelper,
-                                SalesAsync salesAsync
-                               ){
+    private final DealLiquidateService dealLiquidateService;
+
+
+    public FunnelSalesComponent(SalesCommissionScaleRepository salesCommissionScaleRepository, FunnelSales funnelSales, GlobalVariablesCache globalVariablesCache, UserServiceBasicOperations userServiceBasicOperations, SalesHelper salesHelper, SalesAsync salesAsync, DealRegistryService dealRegistryService, DealLiquidateService dealLiquidateService) {
         this.salesCommissionScaleRepository = salesCommissionScaleRepository;
         this.funnelSales = funnelSales;
-
-      //  this.processedDealDaoCrudPort = processedDealDaoCrudPort;
         this.globalVariablesCache = globalVariablesCache;
         this.userServiceBasicOperations = userServiceBasicOperations;
         this.salesHelper = salesHelper;
         this.salesAsync = salesAsync;
+        this.dealRegistryService = dealRegistryService;
+        this.dealLiquidateService = dealLiquidateService;
     }
 
     public PipelineType pipelineKey() {
@@ -156,7 +159,7 @@ public class FunnelSalesComponent implements PipelineHandler {
                         SalesToAppRecord salesToAppRecord = funnelSales.operate(new SalesToDomainRecord(hubspotDealDtoApp, listSalesCommissionScales, valuePercentageSale, false));
                         acumAmountAgent = acumAmountAgent.add(salesToAppRecord.acumAmountAgent());
                         acumAmountCompany = acumAmountCompany.add(salesToAppRecord.acumAmountCompany());
-
+                        fullAcumulatorCompany = fullAcumulatorCompany.add(acumAmountCompany);
                         resultOperation.put(owner,new DetailPaymentFunnel(
                                 new DetailUserPayment("",valueOwnerAccount,acumAmountCompany,valuePercentageSale,salesToAppRecord.substractPercentage()),
                                 new DetailUserPayment("",owner,acumAmountAgent,salesToAppRecord.operationPercentage(),salesToAppRecord.commisionPercentage())
@@ -171,6 +174,12 @@ public class FunnelSalesComponent implements PipelineHandler {
 
             Integer quantity = resultOperation.size();
             resultOperation.put(valueOwnerAccount, new Resume("",valueOwnerAccount,fullAcumulatorCompany,quantity));
+            System.out.println("Result operation" );
+                resultOperation.forEach((propitary,data)-> {
+                    System.out.println(propitary);
+                    System.out.println(data);
+                });
+            System.out.println("-----------------");
             return new CalculateOwnerLiquidationRecord(resultOperation,dealsProccesed);
         }catch (Exception e){
             throw e;
@@ -181,16 +190,11 @@ public class FunnelSalesComponent implements PipelineHandler {
         for (HubspotDealDtoApp deal:dealsProccesed){
            // Long idUserLiquidator = userLiquidationRepository.getIdUserLiquidation(deal.ownerId());
 
-           /* ProcessedDeal processedDeal = new ProcessedDeal(
-                    deal.id()+"-"+deal.ownerId(),
-                    deal.pipelineType(),
-                    idUserLiquidator,
-                    new BigDecimal(deal.properties().get("amount")),
-                    OffsetDateTime.parse(deal.properties().get("closedate")).toLocalDateTime(),
-                    LocalDateTime.now());
-            processedDealDaoCrudPort.create(processedDeal);
-
-            */
+            String mixId = deal.id()+"-"+deal.ownerId();
+            DealRegistry dealRegistry = dealRegistryService.findDealUserId(mixId).orElseThrow();
+            dealRegistry.setState(StatesObjects.SUCCESFULLY);
+            User user = userServiceBasicOperations.findUserByHubId(deal.ownerId()).orElseThrow();
+            dealLiquidateService.createDealLiquidation(deal,List.of(user));
         }
     }
 
