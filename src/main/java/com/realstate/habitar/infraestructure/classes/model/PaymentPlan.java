@@ -2,13 +2,12 @@ package com.realstate.habitar.infraestructure.classes.model;
 
 import com.realstate.habitar.domain.enums.CalendarYear;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
+@Builder
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,6 +20,11 @@ public class PaymentPlan {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Builder.Default
+    @Column(name = "uuid", unique = true, nullable = false, updatable = false)
+    private String uuid = UUID.randomUUID().toString();
+
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "deal_liquidate_id")
     private DealLiquidate dealLiquidate;
@@ -28,9 +32,11 @@ public class PaymentPlan {
     @Column(name = "trace_first_date")
     private LocalDateTime traceFirstDate;
 
+    @Setter
     @Column(name = "trace_second_date")
     private LocalDateTime traceSecondDate;
 
+    @Setter
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
@@ -38,9 +44,7 @@ public class PaymentPlan {
     @Column(name = "rest_days")
     private Long restDays;
 
-    /*
-    @Column(name = "month_number", columnDefinition = "TINYINT UNSIGNED")
-    private CalendarYear monthNumber;
-
-     */
+    @Setter
+    @Column(name = "is_pay")
+    private boolean isPay = false;
 }

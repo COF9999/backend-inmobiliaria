@@ -4,9 +4,11 @@ import com.realstate.habitar.domain.baselogic.interfaces.DetailVisitorSales;
 import com.realstate.habitar.domain.baselogic.interfaces.VisitorExtractSales;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 
+@ToString
 @Getter
 @AllArgsConstructor
 public class Resume extends DetailResumeAbstract {

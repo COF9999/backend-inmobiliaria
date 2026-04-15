@@ -11,6 +11,7 @@ import com.realstate.habitar.domain.dtos.user.UserRequestDto;
 import com.realstate.habitar.infraestructure.adapters.interfaces.userLiquidation.UserLiquidationRepository;
 import com.realstate.habitar.infraestructure.classes.model.Role;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -72,6 +73,7 @@ public class SalesHelper implements DetailVisitorSales<Void> {
 
 
     @Override
+    @Transactional
     public Void visit(Resume resume) {
         String hubId = resume.getHubId();
         BigDecimal acum = resume.getTotalAmount();
@@ -80,6 +82,7 @@ public class SalesHelper implements DetailVisitorSales<Void> {
     }
 
     @Override
+    @Transactional
     public Void visit(DetailPaymentFunnel detailPaymentFunnel) {
         if (detailPaymentFunnel.getDetailAgentPayment()==null){
             visit(new Resume("",
@@ -102,9 +105,7 @@ public class SalesHelper implements DetailVisitorSales<Void> {
 
     public void runClassVisitor(Map<String, DetailResumeAbstract> detailResumeAbstractMap){
         for (Map.Entry<String,DetailResumeAbstract> item:detailResumeAbstractMap.entrySet()){
-            if (item.getValue() instanceof DetailPaymentFunnel){
-                item.getValue().accept(this);
-            }
+            item.getValue().accept(this);
         }
     }
 }

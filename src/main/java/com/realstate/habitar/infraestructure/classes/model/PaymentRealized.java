@@ -1,12 +1,13 @@
 package com.realstate.habitar.infraestructure.classes.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-
+@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Entity

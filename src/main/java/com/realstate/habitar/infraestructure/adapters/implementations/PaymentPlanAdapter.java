@@ -1,6 +1,6 @@
 package com.realstate.habitar.infraestructure.adapters.implementations;
 
-import com.realstate.habitar.application.usecases.paymentplan.PaymentPlanService;
+import com.realstate.habitar.domain.dtos.paymentPlan.PaymentPlanMixDto;
 import com.realstate.habitar.global.domain.ports.DaoCrudPort;
 import com.realstate.habitar.infraestructure.adapters.interfaces.paymentPlan.PaymentPlanRepository;
 import com.realstate.habitar.infraestructure.classes.model.PaymentPlan;
@@ -53,5 +53,26 @@ public class PaymentPlanAdapter implements DaoCrudPort<PaymentPlan>, PaymentPlan
                 entityManager.clear();
             }
         }
+    }
+
+    @Override
+    public List<PaymentPlanMixDto> findByDealUserId(String candidateMixId) {
+        return entityManager.createQuery(
+                        "SELECT new com.realstate.habitar.domain.dtos.paymentPlan.PaymentPlanMixDto(p, (pr.id IS NOT NULL)) " +
+                                "FROM PaymentPlan p " +
+                                "LEFT JOIN PaymentRealized pr ON pr.paymentPlan = p " +
+                                "WHERE p.dealLiquidate.dealRegistry.dealUserId = :candidateMixId",
+                        PaymentPlanMixDto.class)
+                .setParameter("candidateMixId", candidateMixId)
+                .getResultList();
+    }
+
+    @Override
+    public Optional<PaymentPlan> findPaymentPlanByUuid(String uuid) {
+        return entityManager.createQuery(
+                        "SELECT p FROM PaymentPlan p WHERE p.uuid = :uuid", PaymentPlan.class)
+                .setParameter("uuid", uuid)
+                .getResultStream()
+                .findFirst();
     }
 }
