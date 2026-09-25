@@ -740,11 +740,6 @@ The API uses **stateless JWT authentication**.
 
 The payment plan generation of the **Rent** funnel is covered by integration tests in `FunnelRentTest`, which run with the full Spring context (`@SpringBootTest`). They build a 12-month lease contract and check how each month of the plan is assigned to the agent or to the agency, following the settlement traceability.
 
-```bash
-# The database must be running (docker compose up -d)
-./mvnw test
-```
-
 ---
 
 ## 💡 Lessons Learned
