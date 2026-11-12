@@ -27,23 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest(properties = {
-        "spring.datasource.url=jdbc:h2:file:./target/h2/evidencia;MODE=MySQL;NON_KEYWORDS=USER",
-        "spring.datasource.driverClassName=org.h2.Driver",
-        "spring.datasource.username=sa",
-        "spring.datasource.password=",
-        "spring.jpa.hibernate.ddl-auto=create",
-        "spring.jpa.database-platform=org.hibernate.dialect.H2Dialect",
-        "app.db.init.enabled=true",
-        "config.keyowneraccount=account_owner",
-        "config.percentagesale=percentage_sale",
-        "config.listing.agent=listing_property",
-        "config.duration.contract=contract_duration",
-        "config.total.commissions.sixmonths=total_commissions_six_months",
-        "config.total.commissions.oneyear=total_commissions_one_year",
-        "config.commissions.ownersixmonths=commissions_owner_six_months",
-        "config.commissions.owneroneyear=commissions_owner_one_year"
-})
+@SpringBootTest()
 public class AppTest {
 
     @Autowired
