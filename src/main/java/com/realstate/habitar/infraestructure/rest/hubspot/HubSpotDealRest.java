@@ -45,20 +45,14 @@ public class HubSpotDealRest {
     }
 
     @PostMapping("/report-date")
-    public ResponseEntity<Void> liquidateByMonth(@RequestBody LiquidationTimeRecord liquidationMonthRecord){
+    public ResponseEntity<Void> liquidateByMonth(@RequestBody LiquidationTimeRecord liquidationMonthRecord) {
         try {
             hspotDealEventService.liquidationReportByMonth(liquidationMonthRecord);
-        }catch (Exception ex){
+        } catch (Exception ex) {
             log.error("Error procesando evento HubSpot: {}", ex);
         }
 
         return ResponseEntity.ok().build();
     }
-
-
-
-
-
-
 }
 

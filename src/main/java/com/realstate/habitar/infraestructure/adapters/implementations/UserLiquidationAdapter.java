@@ -20,18 +20,17 @@ public class UserLiquidationAdapter implements DaoCrudPort<UserLiquidation> , Us
     @PersistenceContext
     private EntityManager entityManager;
 
+
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public void addAmount(String hubId, BigDecimal amountUser) {
-            Query query = entityManager.createQuery(
-                    "UPDATE UserLiquidation u " +
-                            "SET u.totalAmount = u.totalAmount + :amountUser " +
-                            "WHERE u.user.hubId = :hubId"
-            );
-
-            query.setParameter("amountUser",amountUser);
-            query.setParameter("hubId", hubId);
-            query.executeUpdate();
+        entityManager.createQuery(
+                        "UPDATE UserLiquidation ul " +
+                                "SET ul.totalAmount = ul.totalAmount + :amountUser " +
+                                "WHERE ul.user.id IN (SELECT u.id FROM User u WHERE u.hubId = :hubId)")
+                .setParameter("amountUser", amountUser)
+                .setParameter("hubId", hubId)
+                .executeUpdate();
     }
 
     @Override

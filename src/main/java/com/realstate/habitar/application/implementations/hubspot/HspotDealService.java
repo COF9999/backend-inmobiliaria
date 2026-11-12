@@ -68,6 +68,7 @@ public class HspotDealService {
         return resultDtoList;
     }
 
+
     @Transactional
     public void liquidationReportByMonth(LiquidationTimeRecord liquidationMonthRecord){
 
