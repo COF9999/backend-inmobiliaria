@@ -1,0 +1,119 @@
+[
+  {
+    "id": "32286471187",
+    "ownerId": "391670902",
+    "pipelineType": "FUNNEL_RENT",
+    "properties": {
+      "amount": "1880000",
+      "closedate": "2025-02-01T13:37:53.705Z",
+      "createdate": "2025-01-21T13:48:19.611Z",
+      "dealname": "Nuevo proceso alquiler // Rio alto 1305 // SC",
+      "dealstage": "151455346",
+      "hs_lastmodifieddate": "2025-12-12T15:15:46.731Z",
+      "hs_object_id": "32286471187",
+      "hubspot_owner_id": "391670902",
+      "pipeline": "80031012",
+      "duracion_del_contrato":"6",
+      "captador_del_inmueble":"391670902"
+    }
+  },
+  {
+    "id": "32425599668",
+    "ownerId": "391670902",
+    "pipelineType": "FUNNEL_RENT",
+    "properties": {
+      "amount": "1300000",
+      "closedate": "2025-02-08T03:09:54.037Z",
+      "createdate": "2025-01-27T03:09:59.355Z",
+      "dealname": "Melisa Sanchez // PRC T7 106 // 1'300,000",
+      "dealstage": "151455346",
+      "hs_lastmodifieddate": "2026-01-25T16:57:42.363Z",
+      "hs_object_id": "32425599668",
+      "hubspot_owner_id": "391670902",
+      "pipeline": "80031012",
+      "duracion_del_contrato":"12",
+      "captador_del_inmueble":"1389487631"
+    }
+  },
+  {
+    "id": "33462393477",
+    "ownerId": "1389487631",
+    "pipelineType": "FUNNEL_RENT",
+    "properties": {
+      "amount": "1600000",
+      "closedate": "2025-02-21T17:09:41.286Z",
+      "createdate": "2025-02-13T21:48:35.900Z",
+      "dealname": "Alquiler // Amara 805// Victor Ortiz",
+      "dealstage": "151455346",
+      "hs_lastmodifieddate": "2025-11-23T18:53:03.072Z",
+      "hs_object_id": "33462393477",
+      "hubspot_owner_id": "1389487631",
+      "pipeline": "80031012",
+      "duracion_del_contrato":"12"
+    }
+  },
+  {
+    "id": "42321751069",
+    "ownerId": "80651139",
+    "pipelineType": "FUNNELSALES",
+    "properties": {
+      "amount": "70000000",
+      "closedate": "2025-08-28T21:13:48.658Z",
+      "createdate": "2025-08-16T19:56:29.494Z",
+      "dealname": "906 Torre SAN Luis Rey",
+      "dealstage": "closedwon",
+      "hs_lastmodifieddate": "2026-01-02T15:30:42.901Z",
+      "hs_object_id": "42321751069",
+      "hubspot_owner_id": "80651139",
+      "pipeline": "default"
+    }
+  },
+  {
+    "id": "43899040088",
+    "ownerId": "80651139",
+    "pipelineType": "FUNNELSALES",
+    "properties": {
+      "amount": "860000000",
+      "closedate": "2025-09-24T21:14:21.556Z",
+      "createdate": "2025-09-18T14:58:58.124Z",
+      "dealname": "senderos bruselas 71",
+      "dealstage": "closedwon",
+      "hs_lastmodifieddate": "2026-01-02T15:30:47.542Z",
+      "hs_object_id": "43899040088",
+      "hubspot_owner_id": "80651139",
+      "pipeline": "default"
+    }
+  },
+  {
+    "id": "55197960459",
+    "ownerId": "87564785",
+    "pipelineType": "FUNNELSALES",
+    "properties": {
+      "amount": "4500000",
+      "closedate": "2026-01-31T21:52:03.145Z",
+      "createdate": "2026-01-31T21:53:36.621Z",
+      "dealname": "Apartamento Armenia",
+      "dealstage": "closedwon",
+      "hs_lastmodifieddate": "2026-01-31T21:53:41.585Z",
+      "hs_object_id": "55197960459",
+      "hubspot_owner_id": "87564785",
+      "pipeline": "default"
+    }
+  },
+  {
+    "id": "55198083599",
+    "ownerId": "87564785",
+    "pipelineType": "FUNNELSALES",
+    "properties": {
+      "amount": "10500000",
+      "closedate": "2026-01-31T21:53:39.559Z",
+      "createdate": "2026-01-31T21:55:08.761Z",
+      "dealname": "Apartamento Castellana Armenia",
+      "dealstage": "closedwon",
+      "hs_lastmodifieddate": "2026-01-31T21:55:13.008Z",
+      "hs_object_id": "55198083599",
+      "hubspot_owner_id": "87564785",
+      "pipeline": "default"
+    }
+  }
+]
