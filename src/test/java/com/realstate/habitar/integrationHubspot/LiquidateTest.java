@@ -4,18 +4,21 @@ import com.realstate.habitar.application.implementations.hubspot.HspotDealServic
 import com.realstate.habitar.domain.dtos.hubspot.DealMasterBifurcationRecord;
 import com.realstate.habitar.domain.enums.HubspotEnum;
 import com.realstate.habitar.domain.enums.StatesObjects;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 
+@Disabled("Require real network connection to hubspot it test " +
+        "should be launch manually")
 @SpringBootTest
 @TestPropertySource(properties = {
         "hubspot.base-url=https://api.hubapi.com",
         "hubspot.deal-app.token=[ojo-secreto-reemplazarlo*]",
         "hubspot.api.owners=/crm/v3/owners/"
 })
-public class Liquidate {
+public class LiquidateTest {
     @Autowired
     private HspotDealService hspotDealService;
 

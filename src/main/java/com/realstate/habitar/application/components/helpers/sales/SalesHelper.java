@@ -30,21 +30,6 @@ public class SalesHelper implements DetailVisitorSales<Void> {
         this.hubspotCommands = hubspotCommands;
     }
 
-    private void updateAmount(Map<String, DetailUserPayment> resultOperation) {
-        String hubId = "";
-        BigDecimal acum = BigDecimal.ZERO;
-        for (Map.Entry<String, DetailUserPayment> map : resultOperation.entrySet()) {
-            hubId = map.getKey();
-            DetailUserPayment detailUserPayment  = map.getValue();
-            if (userLiquidationRepository.isExistUserLiquidation(hubId)) {
-                userLiquidationRepository.addAmount(hubId, acum);
-            } else {
-                createUserIfExists(hubId);
-                userLiquidationRepository.addAmount(hubId,acum);
-            }
-        }
-    }
-
     private void createUserIfExists(String hubId) {
         Map<String, Object> activeOwner = hubspotCommands.findOwnerByHubId(hubId);
 

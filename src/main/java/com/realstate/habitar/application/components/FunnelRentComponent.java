@@ -325,13 +325,6 @@ public class FunnelRentComponent implements PipelineHandler {
             Function<FunnelRent.FunnelRentDecitions,R> biFunctionSixMonths,
             Function<FunnelRent.FunnelRentDecitions,R> biFunctionOneYear
     ){
-
-        log.info("\n================ " +
-                "CLAVE ENCONTRADA ???? ================"
-                );
-        log.info("--- 1. PROPERTIES ---  "+ keyDurationContract);
-        log.info("--- 2. KEY DURATION ---  "+ configMapRent.get(keyDurationContract));
-
         String durationContractFromHubspot = hubspotDealDtoApp.properties().get(configMapRent.get(keyDurationContract));
         int durationContract = HubspotEnum.PropertiesHubspot.Rent.CONTRACTDURATION.extractNumber(durationContractFromHubspot);
         if (durationContract==6){
