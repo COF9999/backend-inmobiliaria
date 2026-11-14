@@ -17,7 +17,7 @@ jobs:
           cache: maven
 
       - name: Compile and run tests
-        run: mvn -B verify -Dtest="AppTest#stepsLiquidate"
+        run: mvn -B verify
 
       - name: upload file
         if: always()
