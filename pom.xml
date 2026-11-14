@@ -146,8 +146,10 @@
 				<version>3.5.2</version> <!-- Versión recomendada para compatibilidad -->
 				<configuration>
 					<argLine>
+						@{argLine}
 						-javaagent:${settings.localRepository}/org/mockito/mockito-core/5.17.0/mockito-core-5.17.0.jar
 						-Xshare:off
+
 					</argLine>
 				</configuration>
 			</plugin>
